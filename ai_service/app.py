@@ -68,6 +68,9 @@ qa_chain = ConversationalRetrievalChain.from_llm(llm, retriever=retriever, memor
 app = Flask(__name__)
 CORS(app)
 
+# Allow only production and local frontend origins
+CORS(app, origins=["https://lovemirror.co.uk", "http://localhost:5173", "http://localhost:3000"])
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -161,7 +164,9 @@ def main():
 if __name__ == "__main__":
     # Run Flask app for API endpoints
     import threading
-    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=8501, debug=False))
+    import os
+    port = int(os.environ.get("PORT", 8501))
+    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=port, debug=False))
     flask_thread.daemon = True
     flask_thread.start()
     

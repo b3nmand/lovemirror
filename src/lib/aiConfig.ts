@@ -1,7 +1,7 @@
 // AI Service Configuration
 export const AI_CONFIG = {
   // Base URL for your AI service (Streamlit app)
-  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'http://localhost:8501',
+  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'https://lovemirror-qv8rgfp4jyxh58iepalnp9.streamlit.app', // Default to Streamlit Cloud in production
   
   // API endpoints
   ENDPOINTS: {

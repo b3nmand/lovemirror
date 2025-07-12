@@ -31,6 +31,7 @@ interface AIResponse {
 export async function callAIService(payload: AIRequestPayload): Promise<AIResponse> {
   const { userInput, userContext, chatHistory } = payload;
   const config = getAIConfig();
+  const url = buildAPIUrl(config.ENDPOINTS.CHAT);
 
   try {
     // Format the request for your AI service
@@ -46,11 +47,11 @@ export async function callAIService(payload: AIRequestPayload): Promise<AIRespon
     };
 
     if (config.ENABLE_LOGGING) {
-      console.log('[AI Service] Sending request:', requestBody);
+      console.log('[AI Service] Sending request:', { url, requestBody });
     }
 
     // Make the API call to your AI service
-    const response = await fetch(buildAPIUrl(config.ENDPOINTS.CHAT), {
+    const response = await fetch(url, {
       method: 'POST',
       headers: getDefaultHeaders(),
       body: JSON.stringify(requestBody),
@@ -58,7 +59,9 @@ export async function callAIService(payload: AIRequestPayload): Promise<AIRespon
     });
 
     if (!response.ok) {
-      throw new Error(`AI service responded with status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`[AI Service] Error: Non-OK response`, { url, status: response.status, errorText });
+      throw new Error(`AI service responded with status: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -73,21 +76,21 @@ export async function callAIService(payload: AIRequestPayload): Promise<AIRespon
     };
 
   } catch (error) {
-    console.error('[AI Service] Error:', error);
+    console.error('[AI Service] Error:', { url, error });
     
     // Handle different types of errors
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         return {
           success: false,
-          error: 'Request timed out. Please try again.',
+          error: 'Request to AI service timed out. Please try again later.',
         };
       }
       
       if (error.message.includes('Failed to fetch')) {
         return {
           success: false,
-          error: 'Unable to connect to AI service. Please check your connection and try again.',
+          error: `Unable to connect to AI service at ${url}. Please check your network connection or try again later.`,
         };
       }
       
@@ -128,15 +131,18 @@ export function generateFallbackResponse(userInput: string, context: any): strin
  */
 export async function testAIConnection(): Promise<boolean> {
   const config = getAIConfig();
+  const url = buildAPIUrl(config.ENDPOINTS.HEALTH);
   try {
-    const response = await fetch(buildAPIUrl(config.ENDPOINTS.HEALTH), {
+    const response = await fetch(url, {
       method: 'GET',
       signal: AbortSignal.timeout(5000),
     });
-    
+    if (config.ENABLE_LOGGING) {
+      console.log('[AI Service] Health check response:', { url, status: response.status });
+    }
     return response.ok;
   } catch (error) {
-    console.error('[AI Service] Health check failed:', error);
+    console.error('[AI Service] Health check failed:', { url, error });
     return false;
   }
 }
