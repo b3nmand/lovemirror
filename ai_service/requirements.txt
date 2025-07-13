@@ -6,4 +6,5 @@ langchain
 langchain-community
 openai
 PyPDF2
+pypdf
 # Add any other dependencies your app needs 
