@@ -7,4 +7,5 @@ langchain-community
 openai
 PyPDF2
 pypdf
+tiktoken
 # Add any other dependencies your app needs 
