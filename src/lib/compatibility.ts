@@ -427,8 +427,8 @@ export async function calculateCompatibilityScores(
         error: 'Both partners must complete their assessments' 
       };
     }
-    let user1Assessment = user1Assessments[0];
-    let user2Assessment = user2Assessments[0];
+    const user1Assessment = user1Assessments[0];
+    const user2Assessment = user2Assessments[0];
     console.log('[calculateCompatibilityScores] Using user1Assessment:', user1Assessment);
     console.log('[calculateCompatibilityScores] Using user2Assessment:', user2Assessment);
     const categoryCompatibility: CategoryCompatibility[] = [];

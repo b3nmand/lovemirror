@@ -2,10 +2,10 @@ import os
 import streamlit as st
 import json
 from pathlib import Path
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
@@ -15,7 +15,7 @@ from flask_cors import CORS
 
 # ─── CONFIG ─────────────────────────────────────────────────────────────
 PDF_PATH = Path("the_cog_effect.pdf")
-INDEX_DIR = Path("./faiss_index")
+INDEX_DIR = Path("./chroma_index")
 EMB_MODEL = "text-embedding-ada-002"
 CHAT_MODEL = "gpt-3.5-turbo"
 CHUNK_SIZE = 1000
@@ -32,7 +32,7 @@ def setup_ai_service():
     """Initialize the AI service with book embeddings"""
     if not INDEX_DIR.exists():
         st.info("🔄 Building index (first run)...")
-        print("[DEBUG] Building FAISS index from PDF.")
+        print("[DEBUG] Building ChromaDB index from PDF.")
         
         if not PDF_PATH.exists():
             st.error(f"❌ Book file not found: {PDF_PATH}")
@@ -44,15 +44,14 @@ def setup_ai_service():
         print(f"[DEBUG] Total chunks created: {len(chunks)}")
 
         embedder = OpenAIEmbeddings(model=EMB_MODEL, openai_api_key=os.environ["OPENAI_API_KEY"])
-        db = FAISS.from_documents(chunks, embedder)
-        INDEX_DIR.mkdir(exist_ok=True)
-        db.save_local(str(INDEX_DIR))
-        print("[DEBUG] FAISS index built and saved locally.")
+        db = Chroma.from_documents(chunks, embedder, persist_directory=str(INDEX_DIR))
+        db.persist()
+        print("[DEBUG] ChromaDB index built and saved locally.")
         return db
     else:
-        print("[DEBUG] Loading existing FAISS index.")
+        print("[DEBUG] Loading existing ChromaDB index.")
         embedder = OpenAIEmbeddings(model=EMB_MODEL, openai_api_key=os.environ["OPENAI_API_KEY"])
-        db = FAISS.load_local(str(INDEX_DIR), embedder, allow_dangerous_deserialization=True)
+        db = Chroma(persist_directory=str(INDEX_DIR), embedding_function=embedder)
         return db
 
 # Initialize AI service
@@ -146,7 +145,7 @@ def main():
     
     # Show index status
     if INDEX_DIR.exists():
-        st.success(f"✅ FAISS index ready: {INDEX_DIR}")
+        st.success(f"✅ ChromaDB index ready: {INDEX_DIR}")
     else:
         st.warning(f"⚠️ Index not built yet: {INDEX_DIR}")
     

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import React from 'react';
 
 export function AssessmentScores() {
   const [scores, setScores] = React.useState<{

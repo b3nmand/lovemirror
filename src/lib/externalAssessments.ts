@@ -1,7 +1,7 @@
-import { supabase } from '@/lib/supabase';
-import { calculateScores, type CategoryScore } from '@/lib/scores';
-import { calculateDelusionalScore } from '@/lib/delusionalScore';
 import type { AssessmentType } from '@/lib/assessmentType';
+import { calculateDelusionalScore } from '@/lib/delusionalScore';
+import { calculateScores, type CategoryScore } from '@/lib/scores';
+import { supabase } from '@/lib/supabase';
 
 export interface ExternalAssessmentResult {
   id: string;
