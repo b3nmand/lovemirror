@@ -1,11 +1,7 @@
 import os
 import json
-from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from langchain_community.chat_models import ChatOpenAI
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-import pypdf
 import datetime
 import logging
 
@@ -15,157 +11,113 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ─── CONFIG ─────────────────────────────────────────────────────────────
-PDF_PATH = Path("the_cog_effect.pdf")
-CHUNK_SIZE = 1000
-CHUNK_OLAP = 200
-# ─── ENV CHECK ──────────────────────────────────────────────────────────
-if "OPENAI_API_KEY" not in os.environ:
-    logger.error("❌ Set OPENAI_API_KEY in your environment and restart.")
-    raise RuntimeError("OPENAI_API_KEY environment variable is required")
+# ─── BOOK CONTENT ─────────────────────────────────────────────────────────────
+BOOK_CHAPTERS = {
+    "communication": {
+        "chapter_title": "Chapter 2: Communication and Emotional Awareness",
+        "chapter_excerpt": """
+Effective communication is the cornerstone of any healthy relationship. This chapter explores how to build better communication habits through empathy, active listening, and emotional awareness.
 
-# ─── DOCUMENT PROCESSING ────────────────────────────────────────────────────
-def load_book_content():
-    """Load and process the book content"""
-        if not PDF_PATH.exists():
-        logger.warning(f"⚠️ Book file not found: {PDF_PATH}")
-        logger.info("📚 Using fallback relationship knowledge base")
-        return get_fallback_knowledge()
+Key Principles:
+• Practice active listening without interrupting
+• Use "I feel" statements instead of "You always" accusations
+• Validate your partner's emotions before offering solutions
+• Take breaks during heated discussions to prevent escalation
+• Express appreciation and gratitude regularly
+
+Remember: Communication is not just about talking—it's about creating understanding and connection.
+        """.strip(),
+        "recommendation_reason": "Your communication score indicates room for improvement in how you express and receive messages in relationships."
+    },
+    "trust": {
+        "chapter_title": "Chapter 3: Building Trust in Relationships",
+        "chapter_excerpt": """
+Trust is foundational in any relationship. This chapter outlines frameworks for rebuilding and strengthening trust after conflict or betrayal.
+
+Key Principles:
+• Be consistent in your words and actions
+• Follow through on promises, no matter how small
+• Be transparent about your feelings and intentions
+• Give your partner the benefit of the doubt
+• Rebuild trust through small, consistent actions over time
+
+Remember: Trust is earned through consistent behavior, not grand gestures.
+        """.strip(),
+        "recommendation_reason": "Your trust score suggests you may need to work on building or maintaining trust in your relationships."
+    },
+    "affection": {
+        "chapter_title": "Chapter 1: Consistent Effort and Affection",
+        "chapter_excerpt": """
+Affection is not just about grand gestures but about consistent effort in daily interactions. This chapter focuses on showing love through small, meaningful actions.
+
+Key Principles:
+• Express affection through physical touch (hugs, hand-holding)
+• Use words of affirmation and appreciation daily
+• Create small moments of connection throughout the day
+• Remember important dates and preferences
+• Show interest in your partner's life and experiences
+
+Remember: Small, consistent acts of affection build stronger bonds than occasional grand gestures.
+        """.strip(),
+        "recommendation_reason": "Your affection score indicates you could benefit from more consistent expressions of love and care."
+    },
+    "empathy": {
+        "chapter_title": "Chapter 4: Developing Emotional Intelligence",
+        "chapter_excerpt": """
+Emotional intelligence is crucial for understanding and responding to your partner's needs. This chapter teaches you how to develop deeper empathy and emotional awareness.
+
+Key Principles:
+• Practice perspective-taking in conflicts
+• Recognize and validate your partner's emotions
+• Respond to emotions before trying to solve problems
+• Develop self-awareness about your own emotional triggers
+• Learn to read non-verbal cues and body language
+
+Remember: Empathy is a skill that can be developed with practice and intention.
+        """.strip(),
+        "recommendation_reason": "Your empathy score suggests you could enhance your ability to understand and connect with your partner's emotions."
+    },
+    "shared_goals": {
+        "chapter_title": "Chapter 5: Aligning Visions and Goals",
+        "chapter_excerpt": """
+Shared goals create a strong foundation for long-term relationship success. This chapter helps you identify, communicate, and work toward common objectives.
+
+Key Principles:
+• Have regular conversations about your future together
+• Identify both individual and shared goals
+• Create actionable steps toward your shared vision
+• Celebrate progress and milestones together
+• Be flexible and willing to adjust goals as you grow
+
+Remember: Shared goals give your relationship direction and purpose.
+        """.strip(),
+        "recommendation_reason": "Your shared goals score indicates you may need to better align your vision and objectives with your partner."
+    }
+}
+
+# ─── RECOMMENDATION LOGIC ────────────────────────────────────────────────────
+def get_recommendation(assessment_scores):
+    """Get book chapter recommendation based on lowest assessment score"""
+    if not assessment_scores:
+        return BOOK_CHAPTERS["communication"]  # Default fallback
     
-    try:
-        # Read PDF content
-        with open(PDF_PATH, 'rb') as file:
-            pdf_reader = pypdf.PdfReader(file)
-            text_content = ""
-            for page in pdf_reader.pages:
-                text_content += page.extract_text() + "\n"
-        # Split into chunks
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=CHUNK_SIZE,
-            chunk_overlap=CHUNK_OLAP
-        )
-        chunks = splitter.split_text(text_content)
-        
-        logger.info(f"✅ Book loaded: {len(chunks)} chunks created")
-        return chunks
-        
-    except Exception as e:
-        logger.error(f"❌ Error loading book: {str(e)}")
-        logger.info("📚 Falling back to relationship knowledge base")
-        return get_fallback_knowledge()
-
-def get_fallback_knowledge():
-    """Provide fallback relationship knowledge when PDF is not available"""
-    knowledge_base = [
-        "Healthy relationships are built on mutual respect, trust, and open communication. Both partners should feel valued and heard.",
-        "Effective communication involves active listening, expressing feelings clearly, and avoiding blame or criticism.",
-        "Trust is fundamental to any relationship. It's built through consistent actions, honesty, and reliability over time.",
-        "Setting and respecting boundaries is crucial for maintaining healthy relationships and individual well-being.",
-        "Conflict resolution skills are essential. Focus on the issue, not the person, and work together to find solutions.",
-        "Emotional intelligence helps partners understand and respond to each other's feelings appropriately.",
-        "Quality time together strengthens bonds, while also maintaining individual interests and friendships.",
-        "Appreciation and gratitude should be expressed regularly to maintain positive relationship dynamics.",
-        "Personal growth and self-improvement benefit both individuals and the relationship as a whole.",
-        "Cultural differences should be respected and understood, with open dialogue about values and traditions.",
-        "Financial compatibility and shared goals are important aspects of long-term relationship success.",
-        "Physical and emotional intimacy should be mutually satisfying and respectful of both partners' needs.",
-        "Supporting each other's dreams and aspirations creates a stronger partnership foundation.",
-        "Forgiveness and the ability to move past conflicts are essential for relationship longevity.",
-        "Shared values and life goals help align partners for long-term compatibility and happiness."
-    ]
-    logger.info(f"✅ Fallback knowledge loaded: {len(knowledge_base)} principles")
-    return knowledge_base
-
-# Load book content on startup
-try:
-    book_chunks = load_book_content()
-    logger.info("✅ Book content loaded successfully")
-except Exception as e:
-    logger.error(f"Failed to load book content: {e}")
-    book_chunks = []
-
-# ─── AI SETUP ─────────────────────────────────────────────────────────────
-def setup_ai():
-    """Initialize OpenAI chat model"""
-    return ChatOpenAI(
-        model_name="gpt-3.5-turbo",
-        openai_api_key=os.environ["OPENAI_API_KEY"],
-        temperature=0.7
-    )
-
-try:
-    llm = setup_ai()
-    logger.info("✅ AI model initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize AI model: {e}")
-    llm = None
-
-# ─── CONTEXT RETRIEVAL ────────────────────────────────────────────────────
-def get_relevant_context(query, chunks, max_chunks=3):
-    """Retrieve relevant chunks based on simple keyword matching"""
-    query_lower = query.lower()
-    relevant_chunks = []
+    # Find the category with the lowest score
+    lowest_score = float('inf')
+    lowest_category = None
     
-    for chunk in chunks:
-        chunk_lower = chunk.lower()
-        # Simple relevance scoring
-        score = sum(1 for word in query_lower.split() if word in chunk_lower)
-        if score > 0:
-            relevant_chunks.append((score, chunk))
+    for category, score in assessment_scores.items():
+        if category in BOOK_CHAPTERS and score < lowest_score:
+            lowest_score = score
+            lowest_category = category
     
-    # Sort by relevance and return top chunks
-    relevant_chunks.sort(key=lambda x: x[0], reverse=True)
-    return [chunk for _, chunk in relevant_chunks[:max_chunks]]
+    # If no valid categories found, return default
+    if lowest_category is None:
+        return BOOK_CHAPTERS["communication"]
+    
+    return BOOK_CHAPTERS[lowest_category]
 
-# ─── RESPONSE GENERATION ────────────────────────────────────────────────────
-def generate_response(user_input, user_context, chat_history):
-    """Generate AI response using book knowledge and user context"""
-    try:
-        if not llm:
-            raise Exception("AI model not initialized")
-            
-        # Get relevant book context
-        relevant_chunks = get_relevant_context(user_input, book_chunks)
-        book_context = "\n\n".join(relevant_chunks) if relevant_chunks else "No specific book context found."
-        # Build comprehensive prompt
-        prompt = f"""
-You are an AI Relationship Mentor based on "The Cog Effect" book knowledge. 
-
-User Context:
-- Name: {user_context.get('profile', {}).get('name', 'User')}
-- Gender: {user_context.get('profile', {}).get('gender', 'Not specified')}
-- Region: {user_context.get('profile', {}).get('region', 'Not specified')}
-- Cultural Context: {user_context.get('profile', {}).get('cultural_context', 'global')}
-
-Assessment Data:
-- Assessment Scores: {json.dumps(user_context.get('assessment_scores', {}))}
-- Delusional Score: {user_context.get('delusional_score', 'Not available')}
-- Compatibility Score: {user_context.get('compatibility_score', 'Not available')}%
-
-Book Knowledge Context:
-{book_context}
-
-Chat History: {len(chat_history)} previous messages
-
-User Question: {user_input}
-
-Please provide personalized relationship advice based on:
-1. The user's specific assessment data and profile
-2. Relevant knowledge from "The Cog Effect" book
-3. Best practices for healthy relationships
-4. Cultural sensitivity for their region and background
-
-Provide practical, actionable advice that addresses their specific situation.
-"""
-
-        # Generate response
-        response = llm.predict(prompt)
-        logger.info(f"Generated response for user: {user_context.get('profile', {}).get('name', 'User')}")
-        return response
-        
-    except Exception as e:
-        logger.error(f"Error generating response: {str(e)}")
-        return "I apologize, but I'm having trouble generating a response right now. Please try again."
+# Initialize service
+logger.info("✅ LoveMirror Book Recommendation Service initialized")
 
 # ─── FLASK APP SETUP ────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -188,26 +140,18 @@ if not app.debug:
 def health_check():
     """Health check endpoint"""
     try:
-        # Check if core components are working
         health_status = {
             "status": "healthy",
             "timestamp": datetime.datetime.now().isoformat(),
-            "components": {
-                "book_loaded": len(book_chunks) > 0,
-                "ai_model": llm is not None,
-                "openai_key": "OPENAI_API_KEY" in os.environ
+            "service": "LoveMirror Book Recommendation Service",
+            "version": "2.0.0",
+            "features": {
+                "book_chapters": len(BOOK_CHAPTERS),
+                "recommendation_logic": "score-based"
             }
         }
         
-        # Overall health based on critical components
-        overall_health = all([
-            len(book_chunks) > 0,
-            llm is not None,
-            "OPENAI_API_KEY" in os.environ
-        ])
-        
-        status_code = 200 if overall_health else 503
-        return jsonify(health_status), status_code
+        return jsonify(health_status), 200
         
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -217,35 +161,67 @@ def health_check():
             "timestamp": datetime.datetime.now().isoformat()
         }), 503
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    """Main chat endpoint for AI relationship advice"""
+@app.route('/api/recommendation', methods=['POST'])
+def get_chapter_recommendation():
+    """Get book chapter recommendation based on assessment scores"""
     try:
         # Parse request data
         data = request.get_json()
         if not data:
-            return jsonify({"error": "No data provided"}), 400          
-        user_input = data.get('user_input', '')
+            return jsonify({"error": "No data provided"}), 400
+        
+        assessment_scores = data.get('assessment_scores', {})
         user_context = data.get('user_context', {})
-        chat_history = data.get('chat_history', [])
         
-        if not user_input:
-            return jsonify({"error": "No user input provided"}), 400          
+        if not assessment_scores:
+            return jsonify({"error": "No assessment scores provided"}), 400
+        
+        # Get recommendation
+        recommendation = get_recommendation(assessment_scores)
+        
         # Log the request
-        logger.info(f"Chat request from user: {user_context.get('profile', {}).get('name', 'User')}")
-        
-        # Generate response
-        response = generate_response(user_input, user_context, chat_history)
+        user_name = user_context.get('profile', {}).get('name', 'User')
+        logger.info(f"Recommendation request from user: {user_name}")
         
         return jsonify({
             "success": True,
-            "response": response,
-            "user_context_used": user_context,
+            "recommended_chapter": recommendation["chapter_title"],
+            "chapter_title": recommendation["chapter_title"],
+            "chapter_excerpt": recommendation["chapter_excerpt"],
+            "recommendation_reason": recommendation["recommendation_reason"],
+            "assessment_scores_used": assessment_scores,
             "timestamp": datetime.datetime.now().isoformat()
         }), 200
         
     except Exception as e:
-        logger.error(f"Chat endpoint error: {str(e)}")
+        logger.error(f"Recommendation endpoint error: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}",
+            "timestamp": datetime.datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/chapters', methods=['GET'])
+def get_all_chapters():
+    """Get all available book chapters"""
+    try:
+        chapters = []
+        for category, content in BOOK_CHAPTERS.items():
+            chapters.append({
+                "category": category,
+                "chapter_title": content["chapter_title"],
+                "chapter_excerpt": content["chapter_excerpt"]
+            })
+        
+        return jsonify({
+            "success": True,
+            "chapters": chapters,
+            "total_chapters": len(chapters),
+            "timestamp": datetime.datetime.now().isoformat()
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Chapters endpoint error: {str(e)}")
         return jsonify({
             "success": False,
             "error": f"Internal server error: {str(e)}",
@@ -256,12 +232,14 @@ def chat():
 def root():
     """Root endpoint with service information"""
     return jsonify({
-        "service": "AI Relationship Mentor",
-        "version": 1.0,
+        "service": "LoveMirror Book Recommendation Service",
+        "version": "2.0.0",
         "status": "running",
+        "description": "Simplified recommendation system based on assessment scores",
         "endpoints": {
             "health": "/health",
-            "chat": "/api/chat"
+            "recommendation": "/api/recommendation",
+            "chapters": "/api/chapters"
         },
         "timestamp": datetime.datetime.now().isoformat()
     }), 200
