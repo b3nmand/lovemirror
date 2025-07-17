@@ -2,10 +2,10 @@ name: Deploy AI Service to Azure
 
 on:
   push:
-    branches:  main ]
-    paths:ai_service/**]
+    branches: [ main ]
+    paths: [ 'ai_service/**' ]
   pull_request:
-    branches:  main ]
+    branches: [ main ]
     paths: [ 'ai_service/**' ]
 
 env:
