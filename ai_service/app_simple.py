@@ -164,7 +164,7 @@ def get_chapter_recommendation():
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
-        
+            
         assessment_scores = data.get('assessment_scores', {})
         user_context = data.get('user_context', {})
         

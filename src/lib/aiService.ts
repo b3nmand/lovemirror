@@ -1,5 +1,25 @@
 import { getAIConfig, buildAPIUrl, getDefaultHeaders } from './aiConfig';
 
+interface BookRecommendationPayload {
+  assessmentScores: Record<string, number>;
+  userContext: {
+    profile: {
+      name: string;
+      gender: string;
+      region: string;
+      cultural_context: string;
+    };
+  };
+}
+
+interface BookRecommendationResponse {
+  success: boolean;
+  chapter_title?: string;
+  chapter_excerpt?: string;
+  recommendation_reason?: string;
+  error?: string;
+}
+
 interface AIRequestPayload {
   userInput: string;
   userContext: {
@@ -23,6 +43,84 @@ interface AIResponse {
   success: boolean;
   response?: string;
   error?: string;
+}
+
+/**
+ * Get book recommendation based on assessment scores
+ */
+export async function getBookRecommendation(payload: BookRecommendationPayload): Promise<BookRecommendationResponse> {
+  const { assessmentScores, userContext } = payload;
+  const config = getAIConfig();
+  const url = buildAPIUrl('/api/recommendation');
+
+  try {
+    // Format the request for the book recommendation service
+    const requestBody = {
+      assessment_scores: assessmentScores,
+      user_context: userContext,
+    };
+
+    if (config.ENABLE_LOGGING) {
+      console.log('[Book Recommendation] Sending request:', { url, requestBody });
+    }
+
+    // Make the API call to the book recommendation service
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getDefaultHeaders(),
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(config.TIMEOUT),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Book Recommendation] Error: Non-OK response`, { url, status: response.status, errorText });
+      throw new Error(`Book recommendation service responded with status: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (config.ENABLE_LOGGING) {
+      console.log('[Book Recommendation] Received response:', data);
+    }
+
+    return {
+      success: true,
+      chapter_title: data.chapter_title,
+      chapter_excerpt: data.chapter_excerpt,
+      recommendation_reason: data.recommendation_reason,
+    };
+
+  } catch (error) {
+    console.error('[Book Recommendation] Error:', { url, error });
+    
+    // Handle different types of errors
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request to book recommendation service timed out. Please try again later.',
+        };
+      }
+      
+      if (error.message.includes('Failed to fetch')) {
+        return {
+          success: false,
+          error: `Unable to connect to book recommendation service at ${url}. Please check your network connection or try again later.`,
+        };
+      }
+      
+      return {
+        success: false,
+        error: `Book recommendation service error: ${error.message}`,
+      };
+    }
+    
+    return {
+      success: false,
+      error: 'An unexpected error occurred while communicating with the book recommendation service.',
+    };
+  }
 }
 
 /**
