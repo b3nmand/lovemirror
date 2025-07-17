@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd ai_service
-          pip install -r requirements_azure.txt
+          pip install -r requirements.txt
           pip install gunicorn
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)

@@ -147,7 +147,17 @@ Provide practical, actionable advice that addresses their specific situation.
 app = Flask(__name__)
 
 # Configure CORS for Azure deployment
-CORS(app, origins=["https://lovemirror.co.uk", "https://www.lovemirror.co.uk", "http://localhost:5173", "http://localhost:3000", "https://lovemirror.azurewebsites.net"])
+CORS(app, origins=[
+    "https://lovemirror.co.uk", 
+    "https://www.lovemirror.co.uk", 
+    "http://localhost:5173", 
+    "http://localhost:3000", 
+    "https://lovemirror-ai-service-gzasfnbbbpcaf7ff.ukwest-01.azurewebsites.net"
+])
+
+# Production configuration
+if not app.debug:
+    app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # ─── API ENDPOINTS ──────────────────────────────────────────────────────────
 @app.route('/health', methods=['GET'])
