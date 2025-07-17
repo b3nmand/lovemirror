@@ -9,7 +9,7 @@ import pypdf
 import datetime
 import logging
 
-# Azure deployment trigger - updated for latest deployment
+# Azure deployment trigger - updated for latest deployment with YAML fix
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
