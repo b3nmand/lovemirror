@@ -27,9 +27,10 @@ if "OPENAI_API_KEY" not in os.environ:
 # ─── DOCUMENT PROCESSING ────────────────────────────────────────────────────
 def load_book_content():
     """Load and process the book content"""
-        if not PDF_PATH.exists():
-        logger.error(f"❌ Book file not found: {PDF_PATH}")
-        raise FileNotFoundError(f"Book file not found: {PDF_PATH}")
+    if not PDF_PATH.exists():
+        logger.warning(f"⚠️ Book file not found: {PDF_PATH}")
+        logger.info("📚 Using fallback relationship knowledge base")
+        return get_fallback_knowledge()
     
     try:
         # Read PDF content
@@ -50,7 +51,30 @@ def load_book_content():
         
     except Exception as e:
         logger.error(f"❌ Error loading book: {str(e)}")
-        raise
+        logger.info("📚 Falling back to relationship knowledge base")
+        return get_fallback_knowledge()
+
+def get_fallback_knowledge():
+    """Provide fallback relationship knowledge when PDF is not available"""
+    knowledge_base = [
+        "Healthy relationships are built on mutual respect, trust, and open communication. Both partners should feel valued and heard.",
+        "Effective communication involves active listening, expressing feelings clearly, and avoiding blame or criticism.",
+        "Trust is fundamental to any relationship. It's built through consistent actions, honesty, and reliability over time.",
+        "Setting and respecting boundaries is crucial for maintaining healthy relationships and individual well-being.",
+        "Conflict resolution skills are essential. Focus on the issue, not the person, and work together to find solutions.",
+        "Emotional intelligence helps partners understand and respond to each other's feelings appropriately.",
+        "Quality time together strengthens bonds, while also maintaining individual interests and friendships.",
+        "Appreciation and gratitude should be expressed regularly to maintain positive relationship dynamics.",
+        "Personal growth and self-improvement benefit both individuals and the relationship as a whole.",
+        "Cultural differences should be respected and understood, with open dialogue about values and traditions.",
+        "Financial compatibility and shared goals are important aspects of long-term relationship success.",
+        "Physical and emotional intimacy should be mutually satisfying and respectful of both partners' needs.",
+        "Supporting each other's dreams and aspirations creates a stronger partnership foundation.",
+        "Forgiveness and the ability to move past conflicts are essential for relationship longevity.",
+        "Shared values and life goals help align partners for long-term compatibility and happiness."
+    ]
+    logger.info(f"✅ Fallback knowledge loaded: {len(knowledge_base)} principles")
+    return knowledge_base
 
 # Load book content on startup
 try:
@@ -249,6 +273,7 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500 #   U p d a t e d   f o r   A z u r e   d e p l o y m e n t 
- 
- 
+    return jsonify({"error": "Internal server error"}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
