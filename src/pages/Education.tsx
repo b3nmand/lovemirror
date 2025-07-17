@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Book, DollarSign, MessageCircle, Heart, Users, Brain, ChevronLeft, ArrowRight, Clock, BookOpen } from 'lucide-react';
 import { marked } from 'marked';
+import { marked as markedRenderer } from 'marked';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -776,7 +777,15 @@ export default function Education() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Selected topic:', selectedTopic.title);
+    console.log('Articles in topic:', selectedTopic.articles?.length || 0);
+    console.log('Available topics:', TOPICS.map(t => ({ id: t.id, title: t.title, articles: t.articles.length })));
+  }, [selectedTopic]);
+
   const handleArticleSelect = (article: Article) => {
+    console.log('Opening article:', article.title);
     setSelectedArticle(article);
     window.scrollTo(0, 0);
     setReadingProgress(0);
@@ -884,12 +893,22 @@ export default function Education() {
                   id="article-content"
                   className="h-[60vh] sm:h-[70vh] pr-2 sm:pr-4"
                 >
-                  <div 
-                    className="prose prose-sm sm:prose-base md:prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ 
-                      __html: marked(selectedArticle.content) 
-                    }}
-                  />
+                  {selectedArticle.content ? (
+                    <div 
+                      className="prose prose-sm sm:prose-base md:prose-lg max-w-none"
+                      dangerouslySetInnerHTML={{ 
+                        __html: markedRenderer(selectedArticle.content) 
+                      }}
+                    />
+                  ) : (
+                    <div className="text-center py-8">
+                      <Alert>
+                        <AlertDescription>
+                          Article content is not available. Please try again later.
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  )}
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -968,46 +987,62 @@ export default function Education() {
 
             {/* Articles grid */}
             <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.isArray(selectedTopic.articles) && selectedTopic.articles.map((article, index) => (
+              {selectedTopic.articles && selectedTopic.articles.length > 0 ? (
+                selectedTopic.articles.map((article, index) => (
                 <Card 
-                  key={article.title}
-                  className="cursor-pointer hover:shadow-lg transition-all"
+                  key={`${selectedTopic.id}-${index}`}
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200"
                   onClick={() => handleArticleSelect(article)}
                 >
                   <CardHeader className="p-3 sm:p-4 md:p-6">
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
                       <div className="p-1.5 sm:p-2 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50">
                         <selectedTopic.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-pink-500" />
                       </div>
-                      <CardTitle className="text-sm sm:text-base md:text-lg">{selectedTopic.title}</CardTitle>
+                      <Badge variant="secondary" className="text-xs sm:text-sm">
+                        {selectedTopic.title}
+                      </Badge>
                     </div>
-                    <CardDescription className="text-xs sm:text-sm">
-                      {selectedTopic.description}
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="p-3 sm:p-4 md:p-6">
-                    <div className="space-y-2 sm:space-y-3">
-                      <div 
-                        className="flex items-start gap-2 sm:gap-3 p-2 rounded-lg hover:bg-gray-50"
-                      >
-                        <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 flex items-center justify-center">
-                          <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 text-pink-500" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-xs sm:text-sm md:text-base mb-1">{article.title}</h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{article.preview}</p>
+                  <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-semibold text-sm sm:text-base md:text-lg mb-2 line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3 mb-3">
+                          {article.preview}
+                        </p>
+                        <div className="flex items-center justify-between">
                           {article.readTime && (
-                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Clock className="w-3 h-3" />
                               <span>{article.readTime} min read</span>
                             </div>
                           )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-pink-600 hover:text-pink-700 text-xs"
+                          >
+                            Read Article
+                            <ArrowRight className="w-3 h-3 ml-1" />
+                          </Button>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Alert>
+                    <AlertDescription>
+                      No articles available for this topic yet. Please check back later.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
             </div>
           </>
         )}

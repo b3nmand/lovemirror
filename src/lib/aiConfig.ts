@@ -1,7 +1,7 @@
 // AI Service Configuration
 export const AI_CONFIG = {
   // Base URL for your AI service (Azure App Service)
-  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'https://lovemirror-ai-service.azurewebsites.net', // Default to Azure in production
+  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'https://lovemirror-ai-service-gzasfnbbbpcaf7ff.ukwest-01.azurewebsites.net', // Default to Azure in production
   
   // API endpoints
   ENDPOINTS: {

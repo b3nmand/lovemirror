@@ -27,7 +27,7 @@ if "OPENAI_API_KEY" not in os.environ:
 # ─── DOCUMENT PROCESSING ────────────────────────────────────────────────────
 def load_book_content():
     """Load and process the book content"""
-    if not PDF_PATH.exists():
+        if not PDF_PATH.exists():
         logger.error(f"❌ Book file not found: {PDF_PATH}")
         raise FileNotFoundError(f"Book file not found: {PDF_PATH}")
     

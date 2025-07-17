@@ -35,6 +35,7 @@ jobs:
         run: |
           cd ai_service
           pip install -r requirements_azure.txt
+          pip install gunicorn
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
@@ -42,6 +43,8 @@ jobs:
         run: |
           cd ai_service
           zip -r ../release.zip ./*
+          cd ..
+          echo "Created release.zip with size: $(ls -lh release.zip)"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
