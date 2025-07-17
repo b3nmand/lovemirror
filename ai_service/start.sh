@@ -1,4 +1,9 @@
 #!/bin/bash
+set -e  # Exit on any error
+
+# Set default port if not provided
+PORT=${PORT:-5000}
+
 echo "Starting AI Service..."
 echo "Python version: $(python --version)"
 echo "Gunicorn version: $(gunicorn --version)"

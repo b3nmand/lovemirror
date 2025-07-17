@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Exit on any error
 
 echo "🚀 Setting up AI Relationship Mentor Service..."
 
@@ -8,10 +9,11 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Check if the book file exists
-if [ ! -f "the_cog_effect.pdf" ]; then
+# Check if the book file exists (with optional skip flag)
+if [ "$1" != "--skip-book-check" ] && [ ! -f "the_cog_effect.pdf" ]; then
     echo "❌ Book file 'the_cog_effect.pdf' not found in current directory."
     echo "Please place the book file in this directory and run the script again."
+    echo "Or use: ./setup.sh --skip-book-check to bypass this check."
     exit 1
 fi
 
@@ -22,9 +24,12 @@ if [ -z "$OPENAI_API_KEY" ]; then
     echo "Or create a .env file with: OPENAI_API_KEY=your-api-key-here"
 fi
 
-# Install dependencies
+# Install dependencies with error handling
 echo "📦 Installing Python dependencies..."
-pip3 install -r requirements_azure.txt
+if ! pip3 install -r requirements.txt; then
+    echo "❌ Failed to install dependencies. Please check your Python environment."
+    exit 1
+fi
 
 echo "✅ Setup complete!"
 echo ""
