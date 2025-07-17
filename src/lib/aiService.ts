@@ -46,7 +46,84 @@ interface AIResponse {
 }
 
 /**
- * Get book recommendation based on assessment scores
+ * Get hybrid AI response (AI first, fallback to book chapters)
+ */
+export async function getHybridAIResponse(payload: AIRequestPayload): Promise<AIResponse> {
+  const { userInput, userContext, chatHistory } = payload;
+  const config = getAIConfig();
+  const url = buildAPIUrl('/api/chat');
+
+  try {
+    // Format the request for the hybrid AI service
+    const requestBody = {
+      user_input: userInput,
+      user_context: userContext,
+      chat_history: chatHistory,
+    };
+
+    if (config.ENABLE_LOGGING) {
+      console.log('[Hybrid AI] Sending request:', { url, requestBody });
+    }
+
+    // Make the API call to the hybrid AI service
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getDefaultHeaders(),
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(config.TIMEOUT),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Hybrid AI] Error: Non-OK response`, { url, status: response.status, errorText });
+      throw new Error(`Hybrid AI service responded with status: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (config.ENABLE_LOGGING) {
+      console.log('[Hybrid AI] Received response:', data);
+    }
+
+    return {
+      success: true,
+      response: data.response || 'No response received from AI service',
+    };
+
+  } catch (error) {
+    console.error('[Hybrid AI] Error:', { url, error });
+    
+    // Handle different types of errors
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request to hybrid AI service timed out. Please try again later.',
+        };
+      }
+      
+      if (error.message.includes('Failed to fetch')) {
+        return {
+          success: false,
+          error: `Unable to connect to hybrid AI service at ${url}. Please check your network connection or try again later.`,
+        };
+      }
+      
+      return {
+        success: false,
+        error: `Hybrid AI service error: ${error.message}`,
+      };
+    }
+    
+    return {
+      success: false,
+      error: 'An unexpected error occurred while communicating with the hybrid AI service.',
+    };
+  }
+}
+
+/**
+ * Get book recommendation based on assessment scores (fallback only)
  */
 export async function getBookRecommendation(payload: BookRecommendationPayload): Promise<BookRecommendationResponse> {
   const { assessmentScores, userContext } = payload;

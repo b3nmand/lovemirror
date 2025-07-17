@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/lib/supabase';
 import { useSubscription } from '@/hooks/useSubscription';
-import { getBookRecommendation, getAIStatus, generateFallbackResponse } from '@/lib/aiService';
+import { getHybridAIResponse, getAIStatus, generateFallbackResponse } from '@/lib/aiService';
 import type { Profile } from '@/types/profile';
 
 interface Message {
@@ -122,28 +122,30 @@ export default function AIRelationshipMentor() {
   };
 
   const handleSendMessage = async () => {
-    if (isLoading) return;
+    if (!inputValue.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: 'Get book recommendation based on my assessment scores',
+      content: inputValue,
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
     setIsLoading(true);
 
     try {
-      // Log user request and context
-      console.log('[LOG] User request for book recommendation');
+      // Log user message and context
+      console.log('[LOG] User message:', userMessage);
       console.log('[LOG] User context:', userContext);
+      console.log('[LOG] Chat history:', messages);
 
-      // Get book recommendation
-      const aiResponse = await generateAIResponse('', userContext);
+      // Get hybrid AI response
+      const aiResponse = await generateAIResponse(inputValue, userContext);
       
       // Log AI response
-      console.log('[LOG] Book recommendation response:', aiResponse);
+      console.log('[LOG] AI response:', aiResponse);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -154,16 +156,23 @@ export default function AIRelationshipMentor() {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('[ERROR] Error generating book recommendation:', error);
+      console.error('[ERROR] Error generating AI response:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I apologize, but I encountered an error while getting your book recommendation. Please try again.',
+        content: 'I apologize, but I encountered an error while processing your request. Please try again.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -175,9 +184,15 @@ export default function AIRelationshipMentor() {
         return generateFallbackResponse(userInput, context);
       }
 
-      // Get book recommendation based on assessment scores
-      const result = await getBookRecommendation({
-        assessmentScores: context?.assessmentScores || {},
+      // Prepare chat history for context
+      const chatHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Get hybrid AI response (AI first, fallback to book chapters)
+      const result = await getHybridAIResponse({
+        userInput,
         userContext: {
           profile: {
             name: context?.profile?.name || 'User',
@@ -185,18 +200,22 @@ export default function AIRelationshipMentor() {
             region: context?.profile?.region || 'Not specified',
             cultural_context: context?.profile?.cultural_context || 'global',
           },
+          assessmentScores: context?.assessmentScores || {},
+          delusionalScore: context?.delusionalScore || null,
+          compatibilityScore: context?.compatibilityScore || null,
         },
+        chatHistory,
       });
 
-      if (result.success && result.chapter_excerpt) {
-        return `Based on your assessment scores, I recommend focusing on:\n\n**${result.chapter_title}**\n\n${result.chapter_excerpt}\n\n**Why this recommendation?**\n${result.recommendation_reason}`;
+      if (result.success && result.response) {
+        return result.response;
       } else {
-        console.warn('[AI Mentor] Book recommendation service returned error, using fallback:', result.error);
+        console.warn('[AI Mentor] Hybrid AI service returned error, using fallback:', result.error);
         return generateFallbackResponse(userInput, context);
       }
 
     } catch (error) {
-      console.error('[AI Mentor] Error calling book recommendation service:', error);
+      console.error('[AI Mentor] Error calling hybrid AI service:', error);
       return generateFallbackResponse(userInput, context);
     }
   };
@@ -219,13 +238,13 @@ export default function AIRelationshipMentor() {
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="text-center">
             <Sparkles className="w-12 h-12 mx-auto mb-4 text-pink-500" />
-            <CardTitle className="text-xl sm:text-2xl">Book Recommendation System</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">AI Relationship Mentor</CardTitle>
           </CardHeader>
           <CardContent>
             <Alert className="mb-6">
               <Brain className="h-4 w-4" />
                           <AlertDescription>
-              Get personalized book chapter recommendations based on your assessment results and profile.
+              Get personalized AI-powered relationship advice with book chapter fallback based on your assessment results and profile.
               Upgrade to premium to access this feature.
             </AlertDescription>
             </Alert>
@@ -233,7 +252,7 @@ export default function AIRelationshipMentor() {
               onClick={() => navigate('/subscription')}
               className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
             >
-              Upgrade to Access Book Recommendations
+              Upgrade to Access AI Mentor
             </Button>
           </CardContent>
         </Card>
@@ -256,7 +275,7 @@ export default function AIRelationshipMentor() {
           </Button>
           <div className="flex items-center gap-2">
             <Bot className="w-6 h-6 text-pink-500" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Book Recommendation System</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">AI Relationship Mentor</h1>
           </div>
         </div>
 
@@ -317,7 +336,7 @@ export default function AIRelationshipMentor() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm sm:text-base flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
-              Get Book Recommendation
+              Chat with AI Mentor
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col p-0">
@@ -328,10 +347,10 @@ export default function AIRelationshipMentor() {
                   <div className="text-center text-muted-foreground py-8">
                     <Bot className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p className="text-sm sm:text-base">
-                      Click "Get Recommendation" to receive a personalized book chapter based on your assessment scores!
+                      Ask me anything about relationships, communication, or personal growth!
                     </p>
                     <p className="text-xs mt-2">
-                      I'll analyze your scores and recommend the most relevant chapter for your relationship growth.
+                      I'll use AI with book knowledge, and fall back to book chapters if needed.
                     </p>
                   </div>
                 )}
@@ -385,55 +404,57 @@ export default function AIRelationshipMentor() {
             {/* Input Area */}
             <div className="border-t p-3 sm:p-4">
               <div className="flex gap-2">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask your relationship question..."
+                  className="flex-1"
+                  disabled={isLoading}
+                />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={isLoading}
-                  className="bg-pink-500 hover:bg-pink-600 w-full"
+                  disabled={!inputValue.trim() || isLoading}
+                  className="bg-pink-500 hover:bg-pink-600"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Getting Recommendation...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4" />
-                      Get Recommendation
-                    </div>
-                  )}
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Click the button to get a personalized book chapter recommendation based on your assessment scores
+                Press Enter to send, Shift+Enter for new line
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Available Chapters */}
+                {/* Quick Questions */}
         <Card className="mt-4 sm:mt-6">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm sm:text-base">Available Book Chapters</CardTitle>
+            <CardTitle className="text-sm sm:text-base">Quick Questions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {[
-                "Chapter 1: Consistent Effort and Affection",
-                "Chapter 2: Communication and Emotional Awareness",
-                "Chapter 3: Building Trust in Relationships",
-                "Chapter 4: Developing Emotional Intelligence",
-                "Chapter 5: Aligning Visions and Goals"
-              ].map((chapter, index) => (
-                <div
+                "How can I improve communication with my partner?",
+                "What does my delusional score mean?",
+                "How can I build more trust?",
+                "What are signs of a healthy relationship?",
+                "How do I handle conflicts better?",
+                "What should I focus on based on my assessment?"
+              ].map((question, index) => (
+                <Button
                   key={index}
-                  className="text-xs sm:text-sm p-2 border rounded-lg bg-gray-50 text-gray-700"
-                                  >
-                    {chapter}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputValue(question)}
+                  className="text-xs sm:text-sm h-auto p-2 text-left justify-start"
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

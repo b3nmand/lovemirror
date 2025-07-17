@@ -4,8 +4,10 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import datetime
 import logging
+import openai
+from typing import Optional, Dict, Any
 
-# Azure deployment trigger - updated for latest deployment with YAML fix
+# Azure deployment trigger - hybrid AI system implementation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -95,9 +97,88 @@ Remember: Shared goals give your relationship direction and purpose.
     }
 }
 
-# ─── RECOMMENDATION LOGIC ────────────────────────────────────────────────────
-def get_recommendation(assessment_scores):
-    """Get book chapter recommendation based on lowest assessment score"""
+# ─── HYBRID AI AND RULE-BASED LOGIC ──────────────────────────────────────────
+def get_ai_response(user_input: str, user_context: Dict[str, Any], chat_history: list) -> Optional[str]:
+    """Attempt to get AI response from OpenAI"""
+    try:
+        # Check if OpenAI API key is available
+        if not os.environ.get("OPENAI_API_KEY"):
+            logger.warning("⚠️ OpenAI API key not available, using fallback")
+            return None
+        
+        # Get relevant book context for the user's question
+        relevant_chunks = get_relevant_context(user_input, list(BOOK_CHAPTERS.values()))
+        book_context = "\n\n".join([chunk["chapter_excerpt"] for chunk in relevant_chunks]) if relevant_chunks else "No specific book context found."
+        
+        # Build comprehensive prompt
+        prompt = f"""
+You are an AI Relationship Mentor based on "The Cog Effect" book knowledge. 
+
+User Context:
+- Name: {user_context.get('profile', {}).get('name', 'User')}
+- Gender: {user_context.get('profile', {}).get('gender', 'Not specified')}
+- Region: {user_context.get('profile', {}).get('region', 'Not specified')}
+- Cultural Context: {user_context.get('profile', {}).get('cultural_context', 'global')}
+
+Assessment Data:
+- Assessment Scores: {json.dumps(user_context.get('assessment_scores', {}))}
+- Delusional Score: {user_context.get('delusional_score', 'Not available')}
+- Compatibility Score: {user_context.get('compatibility_score', 'Not available')}%
+
+Book Knowledge Context:
+{book_context}
+
+Chat History: {len(chat_history)} previous messages
+
+User Question: {user_input}
+
+Please provide personalized relationship advice based on:
+1. The user's specific assessment data and profile
+2. Relevant knowledge from "The Cog Effect" book
+3. Best practices for healthy relationships
+4. Cultural sensitivity for their region and background
+
+Provide practical, actionable advice that addresses their specific situation.
+"""
+
+        # Initialize OpenAI client
+        client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        
+        # Make API call
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=500,
+            timeout=30
+        )
+        
+        ai_response = response.choices[0].message.content
+        logger.info(f"✅ AI response generated successfully for user: {user_context.get('profile', {}).get('name', 'User')}")
+        return ai_response
+        
+    except Exception as e:
+        logger.error(f"❌ AI response failed: {str(e)}")
+        return None
+
+def get_relevant_context(query: str, chapters: list, max_chunks: int = 2) -> list:
+    """Get relevant book chapters based on user query"""
+    query_lower = query.lower()
+    relevant_chapters = []
+    
+    for chapter in chapters:
+        chapter_text = f"{chapter['chapter_title']} {chapter['chapter_excerpt']}".lower()
+        # Simple relevance scoring
+        score = sum(1 for word in query_lower.split() if word in chapter_text)
+        if score > 0:
+            relevant_chapters.append((score, chapter))
+    
+    # Sort by relevance and return top chapters
+    relevant_chapters.sort(key=lambda x: x[0], reverse=True)
+    return [chapter for _, chapter in relevant_chapters[:max_chunks]]
+
+def get_fallback_recommendation(assessment_scores: Dict[str, int]) -> Dict[str, str]:
+    """Get book chapter recommendation based on lowest assessment score (fallback)"""
     if not assessment_scores:
         return BOOK_CHAPTERS["communication"]  # Default fallback
     
@@ -116,8 +197,37 @@ def get_recommendation(assessment_scores):
     
     return BOOK_CHAPTERS[lowest_category]
 
+def generate_hybrid_response(user_input: str, user_context: Dict[str, Any], chat_history: list) -> Dict[str, Any]:
+    """Generate response using AI first, fallback to book chapters if AI fails"""
+    
+    # Attempt AI response first
+    ai_response = get_ai_response(user_input, user_context, chat_history)
+    
+    if ai_response:
+        # AI succeeded - return AI response
+        return {
+            "success": True,
+            "response": ai_response,
+            "response_type": "ai_generated",
+            "source": "OpenAI GPT-3.5-turbo"
+        }
+    else:
+        # AI failed - use fallback book recommendation
+        logger.info("📚 Using fallback book recommendation")
+        fallback = get_fallback_recommendation(user_context.get('assessment_scores', {}))
+        
+        return {
+            "success": True,
+            "response": f"Based on your assessment scores, I recommend focusing on:\n\n**{fallback['chapter_title']}**\n\n{fallback['chapter_excerpt']}\n\n**Why this recommendation?**\n{fallback['recommendation_reason']}",
+            "response_type": "book_fallback",
+            "source": "The Cog Effect Book",
+            "chapter_title": fallback['chapter_title'],
+            "chapter_excerpt": fallback['chapter_excerpt'],
+            "recommendation_reason": fallback['recommendation_reason']
+        }
+
 # Initialize service
-logger.info("✅ LoveMirror Book Recommendation Service initialized")
+logger.info("✅ LoveMirror Hybrid AI and Book Recommendation Service initialized")
 
 # ─── FLASK APP SETUP ────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -143,11 +253,13 @@ def health_check():
         health_status = {
             "status": "healthy",
             "timestamp": datetime.datetime.now().isoformat(),
-            "service": "LoveMirror Book Recommendation Service",
-            "version": "2.0.0",
+            "service": "LoveMirror Hybrid AI and Book Recommendation Service",
+            "version": "3.0.0",
             "features": {
                 "book_chapters": len(BOOK_CHAPTERS),
-                "recommendation_logic": "score-based"
+                "ai_enabled": bool(os.environ.get("OPENAI_API_KEY")),
+                "response_logic": "hybrid_ai_fallback",
+                "ai_model": "gpt-3.5-turbo" if os.environ.get("OPENAI_API_KEY") else "disabled"
             }
         }
         
@@ -161,9 +273,49 @@ def health_check():
             "timestamp": datetime.datetime.now().isoformat()
         }), 503
 
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Hybrid AI chat endpoint - tries AI first, falls back to book chapters"""
+    try:
+        # Parse request data
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        user_input = data.get('user_input', '')
+        user_context = data.get('user_context', {})
+        chat_history = data.get('chat_history', [])
+        
+        if not user_input:
+            return jsonify({"error": "No user input provided"}), 400
+        
+        # Log the request
+        user_name = user_context.get('profile', {}).get('name', 'User')
+        logger.info(f"Chat request from user: {user_name}")
+        
+        # Generate hybrid response (AI first, fallback to book chapters)
+        result = generate_hybrid_response(user_input, user_context, chat_history)
+        
+        return jsonify({
+            "success": True,
+            "response": result["response"],
+            "response_type": result["response_type"],
+            "source": result["source"],
+            "user_context_used": user_context,
+            "timestamp": datetime.datetime.now().isoformat()
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Chat endpoint error: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}",
+            "timestamp": datetime.datetime.now().isoformat()
+        }), 500
+
 @app.route('/api/recommendation', methods=['POST'])
 def get_chapter_recommendation():
-    """Get book chapter recommendation based on assessment scores"""
+    """Get book chapter recommendation based on assessment scores (fallback only)"""
     try:
         # Parse request data
         data = request.get_json()
@@ -176,20 +328,22 @@ def get_chapter_recommendation():
         if not assessment_scores:
             return jsonify({"error": "No assessment scores provided"}), 400
         
-        # Get recommendation
-        recommendation = get_recommendation(assessment_scores)
+        # Get fallback recommendation
+        fallback = get_fallback_recommendation(assessment_scores)
         
         # Log the request
         user_name = user_context.get('profile', {}).get('name', 'User')
-        logger.info(f"Recommendation request from user: {user_name}")
+        logger.info(f"Fallback recommendation request from user: {user_name}")
         
         return jsonify({
             "success": True,
-            "recommended_chapter": recommendation["chapter_title"],
-            "chapter_title": recommendation["chapter_title"],
-            "chapter_excerpt": recommendation["chapter_excerpt"],
-            "recommendation_reason": recommendation["recommendation_reason"],
+            "recommended_chapter": fallback["chapter_title"],
+            "chapter_title": fallback["chapter_title"],
+            "chapter_excerpt": fallback["chapter_excerpt"],
+            "recommendation_reason": fallback["recommendation_reason"],
             "assessment_scores_used": assessment_scores,
+            "response_type": "book_fallback",
+            "source": "The Cog Effect Book",
             "timestamp": datetime.datetime.now().isoformat()
         }), 200
         
@@ -232,14 +386,20 @@ def get_all_chapters():
 def root():
     """Root endpoint with service information"""
     return jsonify({
-        "service": "LoveMirror Book Recommendation Service",
-        "version": "2.0.0",
+        "service": "LoveMirror Hybrid AI and Book Recommendation Service",
+        "version": "3.0.0",
         "status": "running",
-        "description": "Simplified recommendation system based on assessment scores",
+        "description": "Hybrid system: AI responses with book chapter fallback",
         "endpoints": {
             "health": "/health",
+            "chat": "/api/chat",
             "recommendation": "/api/recommendation",
             "chapters": "/api/chapters"
+        },
+        "features": {
+            "ai_enabled": bool(os.environ.get("OPENAI_API_KEY")),
+            "fallback_system": "book_chapters",
+            "response_types": ["ai_generated", "book_fallback"]
         },
         "timestamp": datetime.datetime.now().isoformat()
     }), 200
