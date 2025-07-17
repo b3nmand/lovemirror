@@ -8,8 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'ai_service/**'  # Only trigger on AI service changes
   workflow_dispatch:
 
 jobs:
@@ -32,16 +30,12 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: |
-          cd ai_service
-          pip install -r requirements_azure.txt
+        run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: |
-          cd ai_service
-          zip -r ../release.zip ./*
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -71,13 +65,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1C7BE381CD5C4164B8F9D52AC2F27786 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_13E050D33F8D40F4A6C0BC87BA988D8F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_48D89AC8E34949ADAA7C4BD9EE65FCAE }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8A4A34F12A164CA6A89B4A8528AA3FE3 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C3743A7B27094475A1814722EC370FE5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FA8A6D1AFB704027B9FCC7162CB4BA69 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'lovemirror-ai-service'  # Fixed app name
+          app-name: 'lovemirror-ai-service'
           slot-name: 'Production'
+          
