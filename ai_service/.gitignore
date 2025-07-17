@@ -7,6 +7,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Keep static files for deployment
+!static/
+!static/*
+
 # Environment files
 .env
 .env.local

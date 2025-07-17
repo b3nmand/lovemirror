@@ -1,7 +1,7 @@
 import os
 import json
 from pathlib import Path
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from langchain_community.chat_models import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -27,7 +27,7 @@ if "OPENAI_API_KEY" not in os.environ:
 # ─── DOCUMENT PROCESSING ────────────────────────────────────────────────────
 def load_book_content():
     """Load and process the book content"""
-    if not PDF_PATH.exists():
+        if not PDF_PATH.exists():
         logger.warning(f"⚠️ Book file not found: {PDF_PATH}")
         logger.info("📚 Using fallback relationship knowledge base")
         return get_fallback_knowledge()
@@ -265,6 +265,15 @@ def root():
         },
         "timestamp": datetime.datetime.now().isoformat()
     }), 200
+
+@app.route('/favicon.ico')
+def favicon():
+    """Serve favicon"""
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', 
+        mimetype='image/vnd.microsoft.icon'
+    )
 
 # ─── ERROR HANDLERS ──────────────────────────────────────────────────────────
 @app.errorhandler(404)
