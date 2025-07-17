@@ -237,4 +237,5 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500 
+    return jsonify({"error": "Internal server error"}), 500 #   U p d a t e d   f o r   A z u r e   d e p l o y m e n t  
+ 
