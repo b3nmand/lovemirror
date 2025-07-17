@@ -1,75 +1,83 @@
-# Azure Environment Setup Script
-# Run this after creating the Azure Web App
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-Write-Host "🔧 Azure Environment Setup" -ForegroundColor Green
-Write-Host "=========================" -ForegroundColor Green
+name: Build and deploy Python app to Azure Web App - lovemirror-ai-service
 
-# Check if Azure CLI is available
-try {
-    $azVersion = az version --output json 2>$null | ConvertFrom-Json
-    Write-Host "✅ Azure CLI found: $($azVersion.'azure-cli')" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Azure CLI not found. Please install it or use Azure Portal." -ForegroundColor Red
-    Write-Host "   Download from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli" -ForegroundColor Yellow
-    exit 1
-}
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ai_service/**'  # Only trigger on AI service changes
+  workflow_dispatch:
 
-# Check if logged in
-try {
-    $account = az account show --output json 2>$null | ConvertFrom-Json
-    Write-Host "✅ Logged in as: $($account.user.name)" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Not logged in to Azure. Please run: az login" -ForegroundColor Red
-    exit 1
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
 
-# Set environment variables
-$webAppName = "lovemirror-ai-service"
-$resourceGroup = "lovemirror-rg"
+    steps:
+      - uses: actions/checkout@v4
 
-Write-Host "`n🔑 Setting up environment variables..." -ForegroundColor Yellow
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-# Check if OPENAI_API_KEY is set
-$openaiKey = $env:OPENAI_API_KEY
-if (-not $openaiKey) {
-    Write-Host "❌ OPENAI_API_KEY not found in environment" -ForegroundColor Red
-    Write-Host "   Please set it: `$env:OPENAI_API_KEY = 'your-key-here'" -ForegroundColor Yellow
-    exit 1
-}
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+      
+      - name: Install dependencies
+        run: |
+          cd ai_service
+          pip install -r requirements_azure.txt
+        
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
-# Set the environment variable in Azure
-Write-Host "Setting OPENAI_API_KEY in Azure Web App..." -ForegroundColor Yellow
-try {
-    az webapp config appsettings set --name $webAppName --resource-group $resourceGroup --settings OPENAI_API_KEY="$openaiKey" --output none
-    Write-Host "✅ OPENAI_API_KEY set successfully" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Failed to set OPENAI_API_KEY" -ForegroundColor Red
-    Write-Host "   Error: $_" -ForegroundColor Red
-}
+      - name: Zip artifact for deployment
+        run: |
+          cd ai_service
+          zip -r ../release.zip ./*
 
-# Set other recommended settings
-Write-Host "`n⚙️  Setting additional configuration..." -ForegroundColor Yellow
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-app
+          path: |
+            release.zip
+            !venv/
 
-try {
-    # Set Python version
-    az webapp config set --name $webAppName --resource-group $resourceGroup --linux-fx-version "PYTHON|3.11" --output none
-    Write-Host "✅ Python 3.11 configured" -ForegroundColor Green
-    
-    # Set startup command
-    az webapp config set --name $webAppName --resource-group $resourceGroup --startup-file "gunicorn --bind=0.0.0.0 --timeout 600 app:app" --output none
-    Write-Host "✅ Startup command configured" -ForegroundColor Green
-    
-    # Enable logging
-    az webapp log config --name $webAppName --resource-group $resourceGroup --web-server-logging filesystem --output none
-    Write-Host "✅ Logging enabled" -ForegroundColor Green
-    
-} catch {
-    Write-Host "❌ Failed to set configuration" -ForegroundColor Red
-    Write-Host "   Error: $_" -ForegroundColor Red
-}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
-Write-Host "`n🎉 Setup complete!" -ForegroundColor Green
-Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "1. Go to GitHub Actions and re-run the failed workflow" -ForegroundColor White
-Write-Host "2. Test the deployment: https://$webAppName.azurewebsites.net/health" -ForegroundColor White
-Write-Host "3. Update your frontend environment variables" -ForegroundColor White
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: python-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1C7BE381CD5C4164B8F9D52AC2F27786 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_13E050D33F8D40F4A6C0BC87BA988D8F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_48D89AC8E34949ADAA7C4BD9EE65FCAE }}
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'lovemirror-ai-service'  # Fixed app name
+          slot-name: 'Production'
