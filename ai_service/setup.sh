@@ -24,16 +24,16 @@ fi
 
 # Install dependencies
 echo "📦 Installing Python dependencies..."
-pip3 install -r requirements.txt
+pip3 install -r requirements_azure.txt
 
 echo "✅ Setup complete!"
 echo ""
 echo "🎯 To start the AI service:"
-echo "   streamlit run app.py"
+echo "   python app.py"
 echo ""
 echo "🌐 The service will be available at:"
-echo "   - Streamlit UI: http://localhost:8501"
-echo "   - API Health: http://localhost:8501/health"
-echo "   - API Chat: http://localhost:8501/api/chat"
+echo "   - Flask API: http://localhost:5000"
+echo "   - API Health: http://localhost:5000/health"
+echo "   - API Chat: http://localhost:5000/api/chat"
 echo ""
-echo "🔗 Love Mirror will connect to: http://localhost:8501" 
+echo "🔗 Love Mirror will connect to: http://localhost:5000" 

@@ -1,0 +1,64 @@
+name: Deploy AI Service to Azure
+
+on:
+  push:
+    branches:  main ]
+    paths:ai_service/**]
+  pull_request:
+    branches:  main ]
+    paths: [ 'ai_service/**' ]
+
+env:
+  AZURE_WEBAPP_NAME: lovemirror-ai-service
+  PYTHON_VERSION: '311'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3  
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        cd ai_service
+        python -m pip install --upgrade pip
+        pip install -r requirements_azure.txt
+        pip install pytest requests
+    
+    - name: Run tests
+      run: |
+        cd ai_service
+        python -m pytest test_azure_deployment.py -v
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == refs/heads/main   
+    steps:
+    - uses: actions/checkout@v3  
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./ai_service
+    
+    - name: Wait for deployment
+      run: |
+        sleep 30 
+    - name: Test deployment
+      run: |
+        cd ai_service
+        python test_azure_deployment.py
+      env:
+        AZURE_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net 

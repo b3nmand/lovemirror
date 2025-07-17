@@ -1,7 +1,7 @@
 // AI Service Configuration
 export const AI_CONFIG = {
-  // Base URL for your AI service (Streamlit app)
-  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'https://lovemirror-qv8rgfp4jyxh58iepalnp9.streamlit.app', // Default to Streamlit Cloud in production
+  // Base URL for your AI service (Azure App Service)
+  BASE_URL: import.meta.env.VITE_AI_SERVICE_URL || 'https://lovemirror-ai-service.azurewebsites.net', // Default to Azure in production
   
   // API endpoints
   ENDPOINTS: {
@@ -26,7 +26,7 @@ export const getAIConfig = () => {
   return {
     ...AI_CONFIG,
     BASE_URL: isDevelopment 
-      ? 'http://localhost:8501'  // Local Streamlit development
+      ? 'http://localhost:5000'  // Flask development
       : AI_CONFIG.BASE_URL,      // Production URL from env
     ENABLE_LOGGING: isDevelopment,
   };
