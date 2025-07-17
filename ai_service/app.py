@@ -9,6 +9,8 @@ import pypdf
 import datetime
 import logging
 
+# Azure deployment trigger - updated for latest deployment
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -237,5 +239,6 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500 #   U p d a t e d   f o r   A z u r e   d e p l o y m e n t  
+    return jsonify({"error": "Internal server error"}), 500 #   U p d a t e d   f o r   A z u r e   d e p l o y m e n t 
+ 
  
