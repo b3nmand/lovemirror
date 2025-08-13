@@ -260,7 +260,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader className="p-3 sm:p-4 md:p-6">
             <CardTitle className="text-sm sm:text-base md:text-lg">Relationship Resources</CardTitle>

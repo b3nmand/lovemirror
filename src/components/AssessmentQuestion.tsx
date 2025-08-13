@@ -2,20 +2,23 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Question } from '@/lib/questions';
+import { ExternalQuestion } from '@/lib/externalQuestions';
 import { cn } from '@/lib/utils';
 
 interface AssessmentQuestionProps {
-  question: Question;
+  question: Question | ExternalQuestion;
   currentResponse: number | null;
   onResponse: (score: number) => void;
   categoryColor: string;
+  isExternalAssessment?: boolean;
 }
 
 export function AssessmentQuestion({ 
   question, 
   currentResponse, 
   onResponse,
-  categoryColor
+  categoryColor,
+  isExternalAssessment = false
 }: AssessmentQuestionProps) {
   const scores = [1, 2, 3, 4, 5];
   
@@ -34,17 +37,22 @@ export function AssessmentQuestion({
     <Card className="w-full max-w-3xl mx-auto transition-all duration-300 hover:shadow-lg">
       <CardHeader className={cn("text-white p-3 sm:p-4 md:p-6", categoryColor)}>
         <CardTitle className="text-base sm:text-lg md:text-xl">{question.category}</CardTitle>
-        <CardDescription className="text-white/80 text-xs sm:text-sm">Rate how well this statement describes you</CardDescription>
+        <CardDescription className="text-white/80 text-xs sm:text-sm">
+          {isExternalAssessment 
+            ? "Rate how well this statement describes the person you're assessing" 
+            : "Rate how well this statement describes you"
+          }
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 md:p-6">
         <p className="text-sm sm:text-base md:text-lg mb-4 sm:mb-6">{question.text}</p>
-        <div className="flex flex-col sm:flex-row justify-between gap-2 mt-3 sm:mt-4">
+        <div className="flex flex-col sm:flex-row justify-between gap-1 sm:gap-2 mt-3 sm:mt-4">
           {scores.map((score) => (
             <Button
               key={score}
               variant={currentResponse === score ? "default" : "outline"}
               className={cn(
-                "flex-1 transition-all py-2 sm:py-3",
+                "flex-1 transition-all py-2 sm:py-3 text-xs sm:text-sm",
                 currentResponse === score ? categoryColor : "",
                 currentResponse === score ? "text-white" : "text-gray-700"
               )}

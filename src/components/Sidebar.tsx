@@ -18,10 +18,9 @@ interface SidebarProps {
   isMobile?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
-  onToggle?: () => void;
 }
 
-export function Sidebar({ isMobile = false, isOpen = false, onClose, onToggle }: SidebarProps) {
+export function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -178,7 +177,7 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onToggle }:
       ? 'fixed inset-y-0 left-0 z-40 w-full sm:w-80 transform transition-transform duration-300 ease-in-out'
       : 'hidden lg:block fixed top-0 left-0 h-full w-64'}
     ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
-    bg-white shadow-lg
+    bg-white shadow-lg overflow-hidden
   `;
 
   const overlayClasses = `
@@ -195,10 +194,21 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onToggle }:
       <Card className={sidebarClasses}>
         <ScrollArea className="h-full">
           <div className="h-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent">
                 Love Mirror
               </h2>
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+                  aria-label="Close menu"
+                >
+                  <X className="h-6 w-6 text-gray-700" />
+                </Button>
+              )}
             </div>
             
             {/* Subscription Status */}
@@ -207,7 +217,7 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onToggle }:
               <Button
                 size="sm"
                 onClick={() => navigate('/subscription')}
-                className="text-xs h-6 sm:h-8 px-2 sm:px-3 border border-purple-400 text-black bg-white font-medium rounded-md shadow-none focus:outline-none focus:ring-2 focus:ring-purple-300 flex items-center gap-1"
+                className="text-xs h-8 sm:h-8 px-2 sm:px-3 border border-purple-400 text-black bg-white font-medium rounded-md shadow-none focus:outline-none focus:ring-2 focus:ring-purple-300 flex items-center gap-1"
                 style={{ boxShadow: 'none' }}
               >
                 <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 text-pink-500" />

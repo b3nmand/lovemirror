@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://lovemirror.co.uk/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow important pages
+Allow: /
+Allow: /auth
+Allow: /assessment
+Allow: /education
+Allow: /external-assessment/
+Allow: /invitation/
+
+# Crawl delay (optional - be respectful to server)
+Crawl-delay: 1 

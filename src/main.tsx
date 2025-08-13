@@ -30,6 +30,9 @@ import Education from './pages/Education.tsx';
 import CheckoutRedirect from './pages/CheckoutRedirect.tsx';
 import './index.css';
 
+// Note: sitemap.xml and robots.txt are served from the public/ directory
+// and should not be intercepted by React Router
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="light">

@@ -16,6 +16,7 @@ import {
 import { ResultsHeader } from '@/components/ResultsHeader';
 import { CategoryScores } from '@/components/CategoryScores';
 import { ImprovementSuggestions } from '@/components/ImprovementSuggestions';
+import ProgressCharts from '@/components/ProgressCharts';
 import {
   AssessmentResult,
   generateSuggestions,
@@ -24,7 +25,7 @@ import {
   REGION_MULTIPLIERS,
   type BridalPriceResult
 } from '@/lib/scores';
-import { getAssessmentById } from '@/lib/supabase';
+import { getAssessmentById, supabase } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/questions';
 import { 
   Banknote, 
@@ -52,10 +53,17 @@ export default function BridalPriceResults() {
   const [partnerIncome, setPartnerIncome] = useState<number>(50000);
   const [bridalPricePercentage, setBridalPricePercentage] = useState<number>(20);
   const [activeTab, setActiveTab] = useState('overview');
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
     async function fetchAssessment() {
       try {
+        // Get current user ID
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+
         // If we have a stored result and no ID, use that
         if (!id) {
           const storedResult = sessionStorage.getItem('assessmentResult');
@@ -249,14 +257,16 @@ export default function BridalPriceResults() {
           <option value="overview">Bridal Price</option>
           <option value="categories">Category Breakdown</option>
           <option value="calculator">Value Calculator</option>
+          <option value="progress">Progress Charts</option>
         </select>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 sm:mb-8">
         {/* Desktop tab bar */}
-        <TabsList className="hidden sm:grid sm:grid-cols-3 mb-4 sm:mb-6 bg-white border border-gray-200 rounded-lg">
+        <TabsList className="hidden sm:grid sm:grid-cols-4 mb-4 sm:mb-6 bg-white border border-gray-200 rounded-lg">
           <TabsTrigger value="overview" className="text-sm sm:text-base">Bridal Price</TabsTrigger>
           <TabsTrigger value="categories" className="text-sm sm:text-base">Category Breakdown</TabsTrigger>
           <TabsTrigger value="calculator" className="text-sm sm:text-base">Value Calculator</TabsTrigger>
+          <TabsTrigger value="progress" className="text-sm sm:text-base">Progress Charts</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4 sm:space-y-6">
@@ -282,13 +292,13 @@ export default function BridalPriceResults() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg">Category Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] sm:h-[400px]">
+                <div className="h-[250px] sm:h-[300px] md:h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -317,7 +327,7 @@ export default function BridalPriceResults() {
                 <CardTitle className="text-base sm:text-lg">Value Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] sm:h-[400px]">
+                <div className="h-[250px] sm:h-[300px] md:h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -446,6 +456,13 @@ export default function BridalPriceResults() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-4 sm:space-y-6">
+          <ProgressCharts 
+            userId={userId} 
+            assessmentType="bridal-price" 
+          />
         </TabsContent>
       </Tabs>
 

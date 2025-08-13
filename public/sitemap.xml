@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
+  <url>
+    <loc>https://lovemirror.co.uk/</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Main App Landing -->
+  <url>
+    <loc>https://lovemirror.co.uk/app</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Authentication -->
+  <url>
+    <loc>https://lovemirror.co.uk/auth</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dashboard (Protected) -->
+  <url>
+    <loc>https://lovemirror.co.uk/dashboard</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Profile Setup -->
+  <url>
+    <loc>https://lovemirror.co.uk/profile-setup</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Assessment -->
+  <url>
+    <loc>https://lovemirror.co.uk/assessment</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Subscription -->
+  <url>
+    <loc>https://lovemirror.co.uk/subscription</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Checkout Redirect -->
+  <url>
+    <loc>https://lovemirror.co.uk/checkout-redirect</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Education -->
+  <url>
+    <loc>https://lovemirror.co.uk/education</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Settings -->
+  <url>
+    <loc>https://lovemirror.co.uk/settings</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Assessment Results (Protected) -->
+  <url>
+    <loc>https://lovemirror.co.uk/high-value-results</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://lovemirror.co.uk/wife-material-results</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://lovemirror.co.uk/bridal-price-results</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Assessors Management -->
+  <url>
+    <loc>https://lovemirror.co.uk/assessors</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Partner Invitation -->
+  <url>
+    <loc>https://lovemirror.co.uk/invite-partner</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- External Results -->
+  <url>
+    <loc>https://lovemirror.co.uk/external-results</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Self Improvement -->
+  <url>
+    <loc>https://lovemirror.co.uk/self-improvement</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Goals -->
+  <url>
+    <loc>https://lovemirror.co.uk/goals</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Compatibility Results -->
+  <url>
+    <loc>https://lovemirror.co.uk/compatibility</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- AI Relationship Mentor -->
+  <url>
+    <loc>https://lovemirror.co.uk/ai-mentor</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Public External Assessment (No Auth Required) -->
+  <url>
+    <loc>https://lovemirror.co.uk/external-assessment</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Public Invitation Accept (No Auth Required) -->
+  <url>
+    <loc>https://lovemirror.co.uk/invitation</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset> 

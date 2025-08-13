@@ -5,8 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ResultsHeader } from '@/components/ResultsHeader';
 import { CategoryScores } from '@/components/CategoryScores';
 import { ImprovementSuggestions } from '@/components/ImprovementSuggestions';
+import ProgressCharts from '@/components/ProgressCharts';
 import { AssessmentResult, generateSuggestions, getBadgeForScore } from '@/lib/scores';
-import { getAssessmentById } from '@/lib/supabase';
+import { getAssessmentById, supabase } from '@/lib/supabase';
 
 export default function HighValueResults() {
   const navigate = useNavigate();
@@ -14,10 +15,17 @@ export default function HighValueResults() {
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
     async function fetchAssessment() {
       try {
+        // Get current user ID
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+
         // If we have a stored result and no ID, use that
         if (!id) {
           const storedResult = sessionStorage.getItem('assessmentResult');
@@ -108,6 +116,11 @@ export default function HighValueResults() {
       <CategoryScores scores={result.categoryScores} />
 
       <ImprovementSuggestions suggestions={suggestions} />
+
+      <ProgressCharts 
+        userId={userId} 
+        assessmentType="high-value-man" 
+      />
 
       <div className="flex justify-center">
         <Button

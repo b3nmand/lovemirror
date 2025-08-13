@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Scale, Crown, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import lovemirrorLogo from '/public/lovemirror_nobg_logo.png';
+import homeLogo from '/public/homeimage.png';
 
 const theme = {
   background: '#fef9f5',
@@ -18,10 +18,10 @@ const theme = {
     hoverTextColor: '#fff',
   },
   card: {
-    background: '#fff',
-    textColor: '#1a1a1a',
-    borderRadius: '16px',
-    shadow: '0 4px 12px rgba(0,0,0,0.08)',
+    background: '#2d1b69',
+    textColor: '#fff',
+    borderRadius: '12px',
+    shadow: '0 4px 12px rgba(0,0,0,0.15)',
   },
   footerText: '#555',
 };
@@ -63,18 +63,19 @@ export default function Welcome() {
       }}
     >
       {/* Logo */}
-      <div className="flex justify-center mb-6 fade-up" style={{ animation: 'fade-up 0.7s' }}>
+      <div className="flex flex-col items-center mb-8 fade-up" style={{ animation: 'fade-up 0.7s' }}>
         <img
-          src={lovemirrorLogo}
+          src={homeLogo}
           alt="LoveMirror Logo"
-          className="h-20 w-20 object-contain"
+          className="h-24 w-24 sm:h-32 sm:w-32 object-contain mb-4"
           style={{ display: 'block' }}
         />
       </div>
-      {/* Title and subtitle */}
-      <div className="text-center mb-2">
-        <h1
-          className="text-3xl sm:text-4xl font-extrabold mb-2"
+      
+      {/* Main Title */}
+      <div className="text-center mb-8">
+        <h2
+          className="text-3xl sm:text-4xl font-extrabold mb-4"
           style={{
             background: theme.accentGradient,
             WebkitBackgroundClip: 'text',
@@ -83,17 +84,17 @@ export default function Welcome() {
           }}
         >
           Discover Your True Value
-        </h1>
-        <p className="text-base sm:text-lg mt-2 mb-4" style={{ color: theme.textColor }}>
-          Your journey to relationship intelligence and cultural self-awareness starts here.
+        </h2>
+        <p className="text-base sm:text-lg" style={{ color: theme.textColor }}>
+          Your journey to understanding and improving your relationship value starts here.
         </p>
       </div>
       {/* Assessment sections */}
-      <div className="w-full max-w-md space-y-5 mb-8">
+      <div className="w-full max-w-md space-y-4 mb-8">
         {sections.map((section, idx) => (
           <div
             key={section.title}
-            className="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-md card-reveal transition cursor-pointer"
+            className="flex items-center gap-4 p-4 card-reveal transition cursor-pointer"
             style={{
               borderRadius: theme.card.borderRadius,
               boxShadow: theme.card.shadow,
@@ -103,47 +104,25 @@ export default function Welcome() {
             }}
             onClick={() => navigate(section.buttonLink)}
           >
-            <div className="bg-[#f7eafd] p-2 rounded-full flex items-center justify-center">
+            <div className="p-2 rounded-full flex items-center justify-center">
               {section.icon}
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-base sm:text-lg mb-1" style={{ color: theme.textColor }}>{section.title}</div>
-              <div className="text-sm" style={{ color: '#555' }}>{section.description}</div>
+              <div className="font-semibold text-base sm:text-lg mb-1" style={{ color: theme.card.textColor }}>{section.title}</div>
+              <div className="text-sm opacity-90" style={{ color: theme.card.textColor }}>{section.description}</div>
             </div>
-            <Button
-              className="ml-2 px-4 py-2 rounded-lg font-semibold text-sm transition button-hover"
-              style={{
-                background: theme.button.background,
-                color: theme.button.textColor,
-                borderRadius: '8px',
-              }}
-              onClick={e => {
-                e.stopPropagation();
-                navigate(section.buttonLink);
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.background = theme.button.hoverBackground;
-                e.currentTarget.style.color = theme.button.hoverTextColor;
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.background = theme.button.background;
-                e.currentTarget.style.color = theme.button.textColor;
-              }}
-            >
-              {section.buttonText}
-            </Button>
           </div>
         ))}
       </div>
       {/* Start button and privacy note */}
-      <div className="flex flex-col space-y-3 w-full max-w-md">
+      <div className="flex flex-col space-y-4 w-full max-w-md">
         <Button
           onClick={() => navigate('/assessment')}
-          className="w-full font-semibold text-lg py-3 rounded-lg shadow-lg transition button-hover"
+          className="w-full font-semibold text-lg py-4 rounded-lg shadow-lg transition button-hover"
           style={{
             background: theme.button.background,
             color: theme.button.textColor,
-            borderRadius: '8px',
+            borderRadius: '12px',
           }}
           onMouseOver={e => {
             e.currentTarget.style.background = theme.button.hoverBackground;
@@ -156,7 +135,7 @@ export default function Welcome() {
         >
           Start Your Assessment
         </Button>
-        <p className="text-center text-xs sm:text-sm mt-2" style={{ color: theme.footerText }}>
+        <p className="text-center text-xs sm:text-sm" style={{ color: theme.footerText }}>
           Your data is secure and your privacy is our priority
         </p>
       </div>

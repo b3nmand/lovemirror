@@ -112,9 +112,26 @@ export default function Auth() {
         // For new registrations, we'll handle the invitation after profile setup
         navigate('/profile-setup');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Authentication error:', err);
-      setError(activeTab === 'login' ? 'Invalid email or password' : 'Failed to create account');
+      
+      // Provide more specific error messages
+      if (activeTab === 'login') {
+        setError('Invalid email or password');
+      } else {
+        // Registration errors
+        if (err.message?.includes('Database error')) {
+          setError('Account creation failed. Please try again or contact support.');
+        } else if (err.message?.includes('already registered')) {
+          setError('An account with this email already exists. Please try logging in instead.');
+        } else if (err.message?.includes('password')) {
+          setError('Password must be at least 8 characters long.');
+        } else if (err.message?.includes('email')) {
+          setError('Please enter a valid email address.');
+        } else {
+          setError('Failed to create account. Please try again.');
+        }
+      }
     } finally {
       setLoading(false);
     }

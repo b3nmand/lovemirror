@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { getAssessorByCode, completeAssessment, getAssessmentTypeName } from '@/lib/assessors';
 import { submitExternalAssessment } from '@/lib/externalAssessments';
 import { AssessmentQuestion } from '@/components/AssessmentQuestion';
-import { getQuestionsByType, CATEGORIES } from '@/lib/questions';
+import { getExternalQuestionsByType, CATEGORIES } from '@/lib/externalQuestions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -60,23 +60,11 @@ export default function ExternalAssessment() {
         setAssessor(data);
         setUserProfile(userProfile || null);
         
-        // Get questions for this assessment type
+        // Get questions for this assessment type with dynamic name replacement
         if (data.assessment_type) {
-          const assessmentQuestions = getQuestionsByType(data.assessment_type);
-          
-          // Modify questions for external assessment context
-          const modifiedQuestions = assessmentQuestions.map(q => ({
-            ...q,
-            text: q.text.replace(
-              /^I /i, 
-              `${userProfile?.name || 'This person'} `
-            ).replace(
-              /\bmy\b/gi, 
-              'their'
-            )
-          }));
-          
-          setQuestions(modifiedQuestions);
+          const userName = userProfile?.name || 'This person';
+          const externalQuestions = getExternalQuestionsByType(data.assessment_type, userName);
+          setQuestions(externalQuestions);
         }
         
       } catch (err) {
@@ -402,6 +390,7 @@ export default function ExternalAssessment() {
             currentResponse={responses[currentQuestion.id] || null}
             onResponse={handleResponse}
             categoryColor={CATEGORIES[currentQuestion.category]?.color || 'bg-gray-500'}
+            isExternalAssessment={true}
           />
         </div>
       )}

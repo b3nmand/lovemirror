@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 export function MobileNavbar({ onMenuClick }: { onMenuClick: () => void }) {
   return (
     <nav
-      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-14 shadow-md bg-white/90 backdrop-blur-md border-b border-gray-200 block lg:hidden"
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-3 sm:px-4 h-14 shadow-md bg-white/90 backdrop-blur-md border-b border-gray-200 block lg:hidden"
       style={{
         background: "rgba(255,255,255,0.92)",
         WebkitBackdropFilter: "blur(6px)",
@@ -25,18 +25,23 @@ export function MobileNavbar({ onMenuClick }: { onMenuClick: () => void }) {
         variant="ghost"
         size="icon"
         onClick={onMenuClick}
-        className="lg:hidden"
+        className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
         aria-label="Open menu"
       >
-        <svg width="32" height="32" fill="none" stroke="#666" strokeWidth="3" viewBox="0 0 24 24">
-          <rect width="24" height="24" fill="none"/>
-          {/* Outer bars */}
-          <line x1="3" y1="5" x2="21" y2="5" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          <line x1="3" y1="19" x2="21" y2="19" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          {/* Inner bars */}
-          <line x1="5" y1="7" x2="19" y2="7" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          <line x1="5" y1="17" x2="19" y2="17" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        <svg 
+          width="24" 
+          height="24" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          className="text-gray-700"
+        >
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </Button>
     </nav>

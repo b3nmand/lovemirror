@@ -21,7 +21,7 @@ export function CategoryProgress({
 }: CategoryProgressProps) {
   return (
     <div className="w-full mb-8">
-      <div className="flex flex-wrap justify-between gap-2 mb-4">
+      <div className="flex flex-wrap justify-center sm:justify-between gap-1 sm:gap-2 mb-4">
         {categories.map((category, index) => {
           const answered = questionsAnsweredByCategory[category.name] || 0;
           const total = totalQuestionsByCategory[category.name] || 0;
@@ -32,7 +32,7 @@ export function CategoryProgress({
               key={category.name}
               variant="ghost"
               className={cn(
-                "flex flex-col items-center p-2 gap-1 h-auto transition-all",
+                "flex flex-col items-center p-1 sm:p-2 gap-1 h-auto transition-all text-xs sm:text-sm",
                 currentCategoryIndex === index ? "border-b-2 bg-secondary" : "",
                 answered === total && total > 0 ? "opacity-100" : "opacity-80"
               )}

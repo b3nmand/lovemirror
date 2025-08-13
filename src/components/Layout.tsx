@@ -44,7 +44,6 @@ export function Layout({ children }: LayoutProps) {
         isMobile={isMobile} 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)}
-        onToggle={toggleSidebar}
       />
 
       {/* Subscription Banner */}
@@ -54,7 +53,7 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Main content */}
       <div className="pl-0 lg:pl-64 pb-16 min-h-screen bg-gradient-to-br from-gray-50 to-pink-50/30 pt-14 lg:pt-0">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           {children}
         </div>
       </div>

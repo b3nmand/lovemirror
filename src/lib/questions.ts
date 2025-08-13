@@ -175,14 +175,14 @@ Financial Traits,I avoid criticizing my partner's financial habits while relying
 Financial Traits,I view money as a shared tool, not a test of masculinity.
 Financial Traits,I live within my means and avoid chasing a lifestyle image.
 Financial Traits,I openly discuss financial goals and struggles with my partner.
-Financial Traits,I contribute effort, planning, and discipline toward our future together.
+Financial Traits,I contribute to planning and exercise discipline toward our future goals.
 Financial Traits,My partner would describe me as financially responsible.
 Family & Cultural Compatibility,I respect my partner's culture as much as my own.
 Family & Cultural Compatibility,I defend my partner if my family disrespects them.
 Family & Cultural Compatibility,I believe marriage means partnership, not bringing my partner into my family's control.
 Family & Cultural Compatibility,I avoid expecting my partner to conform completely to my traditions.
 Family & Cultural Compatibility,I respect my partner's cultural values without dismissing them.
-Family & Cultural Compatibility,I bring peace when family is involved in our relationship.
+Family & Cultural Compatibility,I bring peace when family brings disharmony into our relationship.
 Family & Cultural Compatibility,I adapt and compromise during cultural clashes.
 Family & Cultural Compatibility,I understand and value the role of family in my partner's upbringing.
 Family & Cultural Compatibility,I prioritize loyalty to my partner over outside opinions.
@@ -193,7 +193,7 @@ Conflict Resolution Style,I stay focused on the current issue during disagreemen
 Conflict Resolution Style,I apologize genuinely when I am wrong.
 Conflict Resolution Style,I prioritize being understood over being right.
 Conflict Resolution Style,I avoid punishing my partner with withdrawal or attitude after fights.
-Conflict Resolution Style,I admit mistakes clearly and work to change behavior.
+Conflict Resolution Style,I admit mistakes clearly and work to change my behavior.
 Conflict Resolution Style,I handle hard conversations without crying, yelling, or blaming.
 Conflict Resolution Style,I seek clarity by asking questions instead of making assumptions.
 Conflict Resolution Style,My partner would say I fight to fix issues, not just to vent.`);

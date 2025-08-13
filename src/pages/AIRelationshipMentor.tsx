@@ -261,52 +261,53 @@ export default function AIRelationshipMentor() {
   }
 
   return (
-    <div className="container mx-auto p-3 sm:p-4 md:p-6">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 sm:gap-2 p-2"
+            size="sm"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm">Back</span>
           </Button>
-          <div className="flex items-center gap-2">
-            <Bot className="w-6 h-6 text-pink-500" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">AI Relationship Mentor</h1>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-pink-500" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">AI Relationship Mentor</h1>
           </div>
         </div>
 
         {/* User Context Card */}
         {userContext && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                <User className="w-4 h-4" />
+          <Card className="mb-3 sm:mb-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs sm:text-sm flex items-center gap-2">
+                <User className="w-3 h-3 sm:w-4 sm:h-4" />
                 Your Profile Context
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground">Name</div>
-                  <div className="font-medium">{userContext.profile?.name || 'Not set'}</div>
+                  <div className="font-medium text-xs sm:text-sm">{userContext.profile?.name || 'Not set'}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground">Gender</div>
-                  <div className="font-medium">{userContext.profile?.gender || 'Not set'}</div>
+                  <div className="font-medium text-xs sm:text-sm">{userContext.profile?.gender || 'Not set'}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground">Delusional Score</div>
-                  <div className="font-medium">
+                  <div className="font-medium text-xs sm:text-sm">
                     {userContext.delusionalScore ? `${userContext.delusionalScore}/10` : 'N/A'}
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground">Compatibility</div>
-                  <div className="font-medium">
+                  <div className="font-medium text-xs sm:text-sm">
                     {userContext.compatibilityScore ? `${userContext.compatibilityScore}%` : 'N/A'}
                   </div>
                 </div>
@@ -317,14 +318,14 @@ export default function AIRelationshipMentor() {
 
         {/* AI Service Status */}
         {aiServiceStatus && (
-          <Alert className={`mb-4 sm:mb-6 ${aiServiceStatus.isAvailable ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
+          <Alert className={`mb-3 sm:mb-4 ${aiServiceStatus.isAvailable ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
             <div className="flex items-center gap-2">
               {aiServiceStatus.isAvailable ? (
-                <Brain className="h-4 w-4 text-green-600" />
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
               )}
-              <AlertDescription className="text-xs sm:text-sm">
+              <AlertDescription className="text-xs">
                 {aiServiceStatus.message}
               </AlertDescription>
             </div>
@@ -332,24 +333,24 @@ export default function AIRelationshipMentor() {
         )}
 
         {/* Chat Interface */}
-        <Card className="h-[60vh] sm:h-[70vh] flex flex-col">
-          <CardHeader className="pb-3">
+        <Card className="flex flex-col h-[calc(100vh-300px)] sm:h-[calc(100vh-400px)] max-h-[600px] overflow-hidden">
+          <CardHeader className="pb-2 flex-shrink-0">
             <CardTitle className="text-sm sm:text-base flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
               Chat with AI Mentor
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
             {/* Messages Area */}
-            <ScrollArea className="flex-1 px-4 sm:px-6">
-              <div className="space-y-4 py-4">
+            <ScrollArea className="flex-1 px-3 sm:px-4 overflow-hidden">
+              <div className="space-y-3 py-3 w-full">
                 {messages.length === 0 && (
-                  <div className="text-center text-muted-foreground py-8">
-                    <Bot className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p className="text-sm sm:text-base">
+                  <div className="text-center text-muted-foreground py-6">
+                    <Bot className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-xs sm:text-sm">
                       Ask me anything about relationships, communication, or personal growth!
                     </p>
-                    <p className="text-xs mt-2">
+                    <p className="text-xs mt-1">
                       I'll use AI with book knowledge, and fall back to book chapters if needed.
                     </p>
                   </div>
@@ -358,35 +359,35 @@ export default function AIRelationshipMentor() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex w-full ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-lg px-3 py-2 text-sm sm:text-base ${
+                      className={`max-w-[85%] sm:max-w-[75%] rounded-lg px-2 py-2 text-xs sm:text-sm ${
                         message.role === 'user'
                           ? 'bg-pink-500 text-white'
                           : 'bg-gray-100 text-gray-900'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-1 mb-1">
                         {message.role === 'user' ? (
-                          <User className="w-3 h-3" />
+                          <User className="w-3 h-3 flex-shrink-0" />
                         ) : (
-                          <Bot className="w-3 h-3" />
+                          <Bot className="w-3 h-3 flex-shrink-0" />
                         )}
-                        <span className="text-xs opacity-70">
+                        <span className="text-xs opacity-70 flex-shrink-0">
                           {message.timestamp.toLocaleTimeString()}
                         </span>
                       </div>
-                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      <div className="whitespace-pre-wrap break-words break-all leading-relaxed overflow-hidden word-break-all">{message.content}</div>
                     </div>
                   </div>
                 ))}
                 
                 {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-100 rounded-lg px-3 py-2">
+                  <div className="flex justify-start w-full">
+                    <div className="bg-gray-100 rounded-lg px-2 py-2 max-w-[85%] sm:max-w-[75%]">
                       <div className="flex items-center gap-2">
-                        <Bot className="w-3 h-3" />
+                        <Bot className="w-3 h-3 flex-shrink-0" />
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -402,25 +403,26 @@ export default function AIRelationshipMentor() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="border-t p-3 sm:p-4">
+            <div className="border-t p-2 sm:p-3 flex-shrink-0">
               <div className="flex gap-2">
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask your relationship question..."
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   disabled={isLoading}
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="bg-pink-500 hover:bg-pink-600"
+                  className="bg-pink-500 hover:bg-pink-600 px-3"
+                  size="sm"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-xs text-muted-foreground mt-1">
                 Press Enter to send, Shift+Enter for new line
               </p>
             </div>
@@ -428,14 +430,14 @@ export default function AIRelationshipMentor() {
         </Card>
 
                 {/* Quick Questions */}
-        <Card className="mt-4 sm:mt-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm sm:text-base">Quick Questions</CardTitle>
+        <Card className="mt-3 sm:mt-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs sm:text-sm">Quick Questions</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
               {[
-                "How can I improve communication with my partner?",
+                "How can I improve communication?",
                 "What does my delusional score mean?",
                 "How can I build more trust?",
                 "What are signs of a healthy relationship?",
@@ -447,7 +449,7 @@ export default function AIRelationshipMentor() {
                   variant="outline"
                   size="sm"
                   onClick={() => setInputValue(question)}
-                  className="text-xs sm:text-sm h-auto p-2 text-left justify-start"
+                  className="text-xs h-auto p-2 text-left justify-start leading-tight"
                 >
                   {question}
                 </Button>
