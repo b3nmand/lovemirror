@@ -36,17 +36,27 @@ export default function CheckoutRedirect() {
         const data = await response.json();
 
         if (data.success) {
-          toast.success('Payment successful! Your subscription is now active.');
-          setStatus('success');
+          console.log('Payment verification response:', data);
+          
+          if (data.premium_status) {
+            toast.success('Payment successful! Your subscription is now active.');
+            setStatus('success');
 
-          // Get stored return URL or default to dashboard
-          const returnUrl = localStorage.getItem('checkoutReturnUrl') || '/dashboard';
-          localStorage.removeItem('checkoutReturnUrl'); // Clean up
+            // Get stored return URL or default to dashboard
+            const returnUrl = localStorage.getItem('checkoutReturnUrl') || '/dashboard';
+            localStorage.removeItem('checkoutReturnUrl'); // Clean up
 
-          // Short delay before redirect
-          setTimeout(() => {
-            navigate(returnUrl, { replace: true });
-          }, 2000);
+            // Short delay before redirect
+            setTimeout(() => {
+              // Force refresh subscription status before redirect
+              window.location.href = returnUrl;
+            }, 2000);
+          } else {
+            console.error('Payment verified but premium status not updated');
+            toast.error('Payment verified but subscription activation failed. Please contact support.');
+            setStatus('error');
+            setTimeout(() => navigate('/dashboard', { replace: true }), 3000);
+          }
         } else {
           throw new Error(data.message || 'Payment verification failed.');
         }

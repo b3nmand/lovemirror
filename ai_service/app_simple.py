@@ -117,14 +117,55 @@ def get_recommendation(assessment_scores):
 # ─── FLASK APP SETUP ────────────────────────────────────────────────────────
 app = Flask(__name__)
 
-# Configure CORS for Azure deployment
-CORS(app, origins=[
-    "https://lovemirror.co.uk", 
-    "https://www.lovemirror.co.uk", 
-    "http://localhost:5173", 
-    "http://localhost:3000", 
-    "https://lovemirror-ai-service-gzasfnbbbpcaf7ff.ukwest-01.azurewebsites.net"
-])
+# Enhanced CORS configuration for Azure deployment
+CORS(app, 
+     origins=[
+         "https://lovemirror.co.uk", 
+         "https://www.lovemirror.co.uk", 
+         "http://localhost:5173", 
+         "http://localhost:3000",
+         "http://localhost:5174",
+         "https://lovemirror-ai-service-gzasfnbbbpcaf7ff.ukwest-01.azurewebsites.net"
+     ],
+     methods=["GET", "POST", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+     supports_credentials=True,
+     max_age=3600
+)
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    """Add CORS headers to all responses"""
+    response.headers.add('Access-Control-Allow-Origin', 'https://lovemirror.co.uk')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Max-Age', '3600')
+    return response
+
+# Handle preflight OPTIONS requests
+@app.route('/api/recommendation', methods=['OPTIONS'])
+def recommendation_options():
+    """Handle preflight OPTIONS request for recommendation endpoint"""
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', 'https://lovemirror.co.uk')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept')
+    response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Max-Age', '3600')
+    return response
+
+@app.route('/api/chapters', methods=['OPTIONS'])
+def chapters_options():
+    """Handle preflight OPTIONS request for chapters endpoint"""
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', 'https://lovemirror.co.uk')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Max-Age', '3600')
+    return response
 
 # Production configuration
 if not app.debug:

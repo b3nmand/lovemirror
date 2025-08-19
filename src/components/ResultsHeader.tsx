@@ -42,10 +42,10 @@ export function ResultsHeader({
         <CardContent className="p-6 relative">
           <div className="absolute top-2 right-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={handleShare}
-              className="h-8 w-8"
+              className="h-8 w-8 bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
             >
               <Share2 className="h-4 w-4" />
             </Button>

@@ -41,6 +41,7 @@ export default function Assessment() {
   const [submitting, setSubmitting] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+  const [currentQuestionInCategory, setCurrentQuestionInCategory] = useState(0);
   const [questionsAnsweredByCategory, setQuestionsAnsweredByCategory] = useState<Record<string, number>>({});
   const [totalQuestionsByCategory, setTotalQuestionsByCategory] = useState<Record<string, number>>({});
   
@@ -110,19 +111,20 @@ export default function Assessment() {
   }, []);
   
   // Update current question when category changes
-  useEffect(() => {
-    if (categories.length > 0 && currentCategoryIndex < categories.length) {
-      const currentCategory = categories[currentCategoryIndex];
-      const answeredQuestionsInCategory = currentCategory.questions.filter(
-        (q: Question) => responses[q.id] !== undefined
-      ).length;
-      
-      // If all questions in this category are answered, move to the next category
-      if (answeredQuestionsInCategory === currentCategory.questions.length && currentCategoryIndex < categories.length - 1) {
-        setCurrentCategoryIndex(currentCategoryIndex + 1);
-      }
-    }
-  }, [responses, currentCategoryIndex, categories]);
+  // Note: Removed automatic advancement - users must manually click Next
+  // useEffect(() => {
+  //   if (categories.length > 0 && currentCategoryIndex < categories.length) {
+  //     const currentCategory = categories[currentCategoryIndex];
+  //     const answeredQuestionsInCategory = currentCategory.questions.filter(
+  //       (q: Question) => responses[q.id] !== undefined
+  //     ).length;
+  //     
+  //     // If all questions in this category are answered, move to the next category
+  //     if (answeredQuestionsInCategory === currentCategory.questions.length && currentCategoryIndex < categories.length - 1) {
+  //       setCurrentCategoryIndex(currentCategoryIndex + 1);
+  //     }
+  //   }
+  // }, [responses, currentCategoryIndex, categories]);
   
   // Update answered questions count by category
   useEffect(() => {
@@ -148,19 +150,13 @@ export default function Assessment() {
     }
     
     const currentCategory = categories[currentCategoryIndex];
-    const answeredQuestions = currentCategory.questions.filter(
-      (q: Question) => responses[q.id] !== undefined
-    );
     
-    // If all questions in this category are answered, return the last one
-    if (answeredQuestions.length === currentCategory.questions.length) {
+    // Show the current question within the category
+    if (currentQuestionInCategory >= currentCategory.questions.length) {
       return currentCategory.questions[currentCategory.questions.length - 1];
     }
     
-    // Find the first unanswered question in this category
-    return currentCategory.questions.find(
-      (q: Question) => responses[q.id] === undefined
-    );
+    return currentCategory.questions[currentQuestionInCategory];
   };
   
   const currentQuestion = getCurrentQuestion();
@@ -183,6 +179,24 @@ export default function Assessment() {
   
   const handleSelectCategory = (index: number) => {
     setCurrentCategoryIndex(index);
+    setCurrentQuestionInCategory(0); // Reset to first question when changing categories
+  };
+  
+  const handleNextQuestion = () => {
+    if (currentQuestion && responses[currentQuestion.id] !== undefined) {
+      const currentCategory = categories[currentCategoryIndex];
+      if (currentQuestionInCategory < currentCategory.questions.length - 1) {
+        setCurrentQuestionInCategory(currentQuestionInCategory + 1);
+      }
+    }
+  };
+  
+  const handlePreviousQuestion = () => {
+    console.log('Previous question clicked. Current index:', currentQuestionInCategory);
+    if (currentQuestionInCategory > 0) {
+      setCurrentQuestionInCategory(currentQuestionInCategory - 1);
+      console.log('Moving to previous question. New index:', currentQuestionInCategory - 1);
+    }
   };
   
   // Handle assessment submission
@@ -355,7 +369,13 @@ export default function Assessment() {
             currentResponse={responses[currentQuestion.id] || null}
             onResponse={handleResponse}
             categoryColor={CATEGORIES[currentQuestion.category]?.color || 'bg-gray-500'}
+            onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
+            hasNextQuestion={currentQuestionInCategory < (categories[currentCategoryIndex]?.questions?.length || 0) - 1}
+            hasPreviousQuestion={currentQuestionInCategory > 0}
+            isLastQuestionInCategory={currentQuestionInCategory === (categories[currentCategoryIndex]?.questions?.length || 0) - 1}
           />
+
         </div>
       )}
       
@@ -366,12 +386,13 @@ export default function Assessment() {
             // Go to previous category if at the beginning of current category
             if (currentCategoryIndex > 0) {
               setCurrentCategoryIndex(currentCategoryIndex - 1);
+              setCurrentQuestionInCategory(0); // Reset to first question
             }
           }}
           disabled={currentCategoryIndex === 0}
           className="text-xs sm:text-sm md:text-base"
         >
-          Previous
+          Previous Category
         </Button>
         
         {currentCategoryIndex < categories.length - 1 ? (
@@ -385,6 +406,7 @@ export default function Assessment() {
               
               if (allAnswered) {
                 setCurrentCategoryIndex(currentCategoryIndex + 1);
+                setCurrentQuestionInCategory(0); // Reset to first question
                 window.scrollTo(0, 0);
               } else {
                 toast.warning('Please answer all questions in this category first');
@@ -392,7 +414,7 @@ export default function Assessment() {
             }}
             className={`bg-gradient-to-r ${CATEGORIES[currentQuestion?.category]?.gradient || ''} text-white text-xs sm:text-sm md:text-base`}
           >
-            Next
+            Next Category
           </Button>
         ) : (
           <Button 

@@ -46,6 +46,15 @@ Deno.serve(async (req) => {
       const { user_id, price_id, plan_id, assessment_id } = await req.json();
       console.log("Received body:", { user_id, price_id, plan_id, assessment_id });
 
+      // Validate that user has completed an assessment
+      if (!assessment_id) {
+        console.error("No assessment_id provided - payment not allowed without assessment");
+        return errorResponse("Assessment must be completed before subscribing", 400, {
+          error: "Assessment required",
+          message: "You must complete an assessment before subscribing to premium features"
+        });
+      }
+
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         line_items: [

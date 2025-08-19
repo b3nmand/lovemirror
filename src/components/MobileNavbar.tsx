@@ -4,28 +4,36 @@ import { Button } from "@/components/ui/button";
 export function MobileNavbar({ onMenuClick }: { onMenuClick: () => void }) {
   return (
     <nav
-      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-3 sm:px-4 h-14 shadow-md bg-white/90 backdrop-blur-md border-b border-gray-200 block lg:hidden"
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 sm:px-6 h-16 sm:h-14 shadow-md bg-white/95 backdrop-blur-md border-b border-gray-200 block lg:hidden"
       style={{
-        background: "rgba(255,255,255,0.92)",
-        WebkitBackdropFilter: "blur(6px)",
-        backdropFilter: "blur(6px)",
+        background: "rgba(255,255,255,0.95)",
+        WebkitBackdropFilter: "blur(8px)",
+        backdropFilter: "blur(8px)",
       }}
     >
-      <span
-        className="text-xl font-bold"
-        style={{
-          background: "linear-gradient(90deg, #e75480 0%, #a259f7 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        Love Mirror
-      </span>
+      <div className="flex items-center">
+        {/* Show image on small screens, text on larger screens */}
+        <img 
+          src="/homeimage.png" 
+          alt="Love Mirror" 
+          className="w-10 h-10 sm:hidden"
+        />
+        <span
+          className="hidden sm:block text-lg sm:text-xl font-bold"
+          style={{
+            background: "linear-gradient(90deg, #e75480 0%, #a259f7 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Love Mirror
+        </span>
+      </div>
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         onClick={onMenuClick}
-        className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+        className="lg:hidden p-3 bg-white hover:bg-gray-50 border-gray-200 rounded-lg touch-manipulation shadow-sm"
         aria-label="Open menu"
       >
         <svg 

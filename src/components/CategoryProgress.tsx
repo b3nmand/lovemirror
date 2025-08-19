@@ -30,9 +30,9 @@ export function CategoryProgress({
           return (
             <Button
               key={category.name}
-              variant="ghost"
+              variant="outline"
               className={cn(
-                "flex flex-col items-center p-1 sm:p-2 gap-1 h-auto transition-all text-xs sm:text-sm",
+                "flex flex-col items-center p-1 sm:p-2 gap-1 h-auto transition-all text-xs sm:text-sm bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200",
                 currentCategoryIndex === index ? "border-b-2 bg-secondary" : "",
                 answered === total && total > 0 ? "opacity-100" : "opacity-80"
               )}

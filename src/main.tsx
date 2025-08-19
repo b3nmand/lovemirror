@@ -7,6 +7,7 @@ import { AuthGuard } from '@/components/AuthGuard';
 import { SubscriptionGuard } from '@/components/SubscriptionGuard';
 import { Layout } from '@/components/Layout';
 import App from './App.tsx';
+import Landing from './pages/Landing.tsx';
 import Auth from './pages/Auth.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import ProfileSetup from './pages/ProfileSetup.tsx';
@@ -38,7 +39,8 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider defaultTheme="light">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AuthGuard requireAuth={false}><Welcome /></AuthGuard>} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/welcome" element={<AuthGuard requireAuth={false}><Welcome /></AuthGuard>} />
           <Route path="/app" element={<AuthGuard requireAuth={false}><App /></AuthGuard>} />
           <Route path="/auth" element={<AuthGuard requireAuth={false}><Auth /></AuthGuard>} />
           <Route path="/dashboard" element={<Layout><AuthGuard><Dashboard /></AuthGuard></Layout>} />
@@ -64,7 +66,7 @@ createRoot(document.getElementById('root')!).render(
           {/* Public routes that don't require subscription */}
           <Route path="/external-assessment/:code" element={<AuthGuard requireAuth={false}><ExternalAssessment /></AuthGuard>} />
           <Route path="/invitation/:code" element={<AuthGuard requireAuth={false}><InvitationAccept /></AuthGuard>} />
-          <Route path="*" element={<Navigate to="/\" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

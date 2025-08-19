@@ -22,8 +22,8 @@ export function ImprovementSuggestions({ suggestions }: ImprovementSuggestionsPr
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Suggested Improvements</CardTitle>
         <Button
-          variant="ghost"
-          className="text-sm"
+          variant="outline"
+          className="text-sm bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
           onClick={() => navigate('/goals')}
         >
           View Full Plan

@@ -266,9 +266,9 @@ export default function AIRelationshipMentor() {
         {/* Header */}
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 sm:gap-2 p-2"
+            className="flex items-center gap-1 sm:gap-2 p-2 bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
             size="sm"
           >
             <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />

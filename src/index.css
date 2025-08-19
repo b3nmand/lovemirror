@@ -2,6 +2,185 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first viewport fixes */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure proper mobile viewport behavior */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Prevent horizontal scrolling on mobile */
+  overflow-x: auto;
+  /* Ensure proper touch behavior */
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Prevent horizontal scrolling */
+  overflow-x: auto;
+  /* Ensure content fits mobile viewport */
+  width: 100%;
+  min-width: 320px;
+}
+
+/* Custom container classes */
+@layer components {
+  .container-fluid {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container-fluid {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-fluid {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+  
+  /* Ensure sections span full width for backgrounds only */
+  section {
+    width: 100%;
+    position: relative;
+  }
+  
+  footer {
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Mobile-first responsive utilities */
+  .mobile-first {
+    /* Base mobile styles */
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Ensure no horizontal overflow */
+  .no-overflow {
+    max-width: 100%;
+  }
+  
+  /* Responsive text sizing */
+  .text-responsive {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    line-height: 1.4;
+  }
+  
+  .heading-responsive {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    line-height: 1.2;
+  }
+  
+  /* Mobile-first grid utilities */
+  .grid-mobile-first {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .grid-mobile-first {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .grid-mobile-first {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+  
+  /* Mobile-first spacing utilities */
+  .space-mobile-first {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  
+  @media (min-width: 640px) {
+    .space-mobile-first {
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .space-mobile-first {
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+  }
+  
+  /* Mobile-first form utilities */
+  .form-mobile-first {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .form-mobile-first {
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Mobile-first card utilities */
+  .card-mobile-first {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  @media (min-width: 640px) {
+    .card-mobile-first {
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+  }
+  
+  /* Touch-friendly button sizing */
+  .touch-friendly {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .touch-friendly {
+      min-height: 40px;
+      min-width: 40px;
+      padding: 0.5rem 1rem;
+    }
+  }
+  
+  /* Mobile-first navigation */
+  .nav-mobile-first {
+    height: 4rem;
+    padding: 0 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .nav-mobile-first {
+      height: 3.5rem;
+      padding: 0 1.5rem;
+    }
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -28,10 +207,21 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  width: 100%;
+  /* Mobile-first improvements */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html {
+  width: 100%;
+  /* Mobile-first improvements */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 h1 {

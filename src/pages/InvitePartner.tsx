@@ -514,8 +514,8 @@ export default function InvitePartner() {
                         <span>Invite link:</span>
                         <TooltipWrapper content="Click to copy">
                           <Button 
-                            variant="ghost" 
-                            className="h-6 p-0 hover:bg-transparent"
+                            variant="outline" 
+                            className="h-6 p-0 hover:bg-transparent bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
                             onClick={handleCopyInvitationLink}
                           >
                             <span className="font-mono text-xs truncate max-w-[150px]">

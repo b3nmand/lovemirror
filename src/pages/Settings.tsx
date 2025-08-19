@@ -399,22 +399,12 @@ export default function Settings() {
           </Alert>
         )}
 
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex w-full rounded-lg overflow-hidden mb-6">
-            {['Profile', 'Notifications', 'Subscription', 'Account'].map(tab => (
-              <TabsTrigger
-                key={tab}
-                value={tab.toLowerCase()}
-                className={`flex-1 px-4 py-2 font-medium transition-all
-                  bg-white text-gray-900 border border-gray-200
-                  data-[state=active]:border-2 data-[state=active]:border-pink-500 data-[state=active]:text-pink-700
-                  hover:text-purple-600 hover:border-pink-300
-                `}
-              >
-                {tab}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Settings Overview</h2>
+          <p className="text-gray-600">All your settings are displayed below for easy access and management.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Profile Tab */}
           <TabsContent value="profile">
@@ -774,7 +764,7 @@ export default function Settings() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+        </div>
 
         {/* Change Password Dialog */}
         <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>

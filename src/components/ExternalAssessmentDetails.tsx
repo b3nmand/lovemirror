@@ -48,7 +48,7 @@ export function ExternalAssessmentDetails({ assessment, onBack }: ExternalAssess
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} className="flex items-center">
+        <Button variant="outline" onClick={onBack} className="flex items-center bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Results List
         </Button>

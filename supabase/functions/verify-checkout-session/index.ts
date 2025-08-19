@@ -130,46 +130,92 @@ Deno.serve(async (req) => {
 
     console.log("Profile updated successfully");
 
-    // Subscription logic
-    console.log("Creating subscription record for plan:", plan_id);
-    const periodStart = new Date().toISOString();
-    let periodEnd: string;
-    if (plan_id === "price_lifetime" || plan_id === "lifetime") {
-      periodEnd = new Date(new Date().setFullYear(new Date().getFullYear() + 100)).toISOString();
-    } else {
-      periodEnd = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
-    }
-
-    console.log("Subscription period:", { periodStart, periodEnd });
-
-    const { error: subError } = await supabase
+    // Subscription logic - Check if subscription already exists
+    console.log("Checking for existing subscription for user:", user_id);
+    const { data: existingSub } = await supabase
       .from("subscriptions")
-      .insert({
-        user_id,
-        status: "active",
-        plan: plan_id,
-        plan_id: plan_id,
-        current_period_start: periodStart,
-        current_period_end: periodEnd,
-        cancel_at_period_end: false,
-        created_at: periodStart,
-        updated_at: periodStart,
-      });
+      .select("id, status")
+      .eq("user_id", user_id)
+      .maybeSingle();
 
-    if (subError) {
-      console.error("Subscription insert error:", subError);
-      // Don't fail the entire request if subscription insert fails
-      console.warn("Continuing despite subscription insert failure");
+    if (existingSub) {
+      // Update existing subscription
+      console.log("Updating existing subscription:", existingSub.id);
+      const periodStart = new Date().toISOString();
+      let periodEnd: string;
+      if (plan_id === "price_lifetime" || plan_id === "lifetime") {
+        periodEnd = new Date(new Date().setFullYear(new Date().getFullYear() + 100)).toISOString();
+      } else {
+        periodEnd = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
+      }
+
+      const { error: subError } = await supabase
+        .from("subscriptions")
+        .update({
+          status: "active",
+          plan: plan_id,
+          plan_id: plan_id,
+          current_period_start: periodStart,
+          current_period_end: periodEnd,
+          cancel_at_period_end: false,
+          updated_at: periodStart,
+        })
+        .eq("id", existingSub.id);
+
+      if (subError) {
+        console.error("Subscription update error:", subError);
+        return errorResponse("Failed to update subscription", 500, subError);
+      }
+      console.log("Subscription updated successfully");
     } else {
+      // Create new subscription
+      console.log("Creating new subscription record for plan:", plan_id);
+      const periodStart = new Date().toISOString();
+      let periodEnd: string;
+      if (plan_id === "price_lifetime" || plan_id === "lifetime") {
+        periodEnd = new Date(new Date().setFullYear(new Date().getFullYear() + 100)).toISOString();
+      } else {
+        periodEnd = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
+      }
+
+      const { error: subError } = await supabase
+        .from("subscriptions")
+        .insert({
+          user_id,
+          status: "active",
+          plan: plan_id,
+          plan_id: plan_id,
+          current_period_start: periodStart,
+          current_period_end: periodEnd,
+          cancel_at_period_end: false,
+          created_at: periodStart,
+          updated_at: periodStart,
+        });
+
+      if (subError) {
+        console.error("Subscription insert error:", subError);
+        return errorResponse("Failed to create subscription", 500, subError);
+      }
       console.log("Subscription created successfully");
     }
 
     console.log("Payment verification completed successfully for user:", user_id);
+    
+    // Verify the update was successful
+    const { data: verifyProfile } = await supabase
+      .from("profiles")
+      .select("is_premium")
+      .eq("id", user_id)
+      .single();
+    
+    console.log("Verification - Profile premium status:", verifyProfile?.is_premium);
+    
     return successResponse({
       plan_id,
       assessment_id,
       user_id,
-      ...(subError && { warning: "Subscription insert failed", subError }),
+      premium_status: verifyProfile?.is_premium,
+      message: "Payment verified and subscription activated successfully"
     });
 
   } catch (error) {

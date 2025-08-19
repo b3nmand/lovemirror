@@ -847,9 +847,9 @@ export default function Education() {
           <div className="space-y-4 sm:space-y-6">
             {/* Back Button */}
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={handleBackToArticles}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-xs sm:text-sm"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-xs sm:text-sm bg-transparent hover:bg-gray-50 border-gray-200"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               Back to Articles
@@ -1021,9 +1021,9 @@ export default function Education() {
                             </div>
                           )}
                           <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             size="sm" 
-                            className="text-pink-600 hover:text-pink-700 text-xs"
+                            className="text-pink-600 hover:text-pink-700 text-xs bg-transparent hover:bg-gray-50 border-gray-200"
                           >
                             Read Article
                             <ArrowRight className="w-3 h-3 ml-1" />

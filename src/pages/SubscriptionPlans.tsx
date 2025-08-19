@@ -11,7 +11,7 @@ export default function SubscriptionPlansPage() {
   return (
     <div className="container max-w-5xl mx-auto p-6 pb-16">
       <div className="mb-8 flex items-center">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mr-4">
+        <Button variant="outline" onClick={() => navigate(-1)} className="mr-4 bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>

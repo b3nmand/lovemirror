@@ -11,6 +11,11 @@ interface AssessmentQuestionProps {
   onResponse: (score: number) => void;
   categoryColor: string;
   isExternalAssessment?: boolean;
+  onNextQuestion?: () => void;
+  onPreviousQuestion?: () => void;
+  hasNextQuestion?: boolean;
+  hasPreviousQuestion?: boolean;
+  isLastQuestionInCategory?: boolean;
 }
 
 export function AssessmentQuestion({ 
@@ -18,7 +23,12 @@ export function AssessmentQuestion({
   currentResponse, 
   onResponse,
   categoryColor,
-  isExternalAssessment = false
+  isExternalAssessment = false,
+  onNextQuestion,
+  onPreviousQuestion,
+  hasNextQuestion,
+  hasPreviousQuestion,
+  isLastQuestionInCategory
 }: AssessmentQuestionProps) {
   const scores = [1, 2, 3, 4, 5];
   
@@ -27,8 +37,8 @@ export function AssessmentQuestion({
       case 1: return 'Rarely';
       case 2: return 'Sometimes';
       case 3: return 'Often';
-      case 4: return 'Usually';
-      case 5: return 'Almost Always';
+      case 4: return 'More Often';
+      case 5: return 'Always';
       default: return '';
     }
   };
@@ -68,7 +78,35 @@ export function AssessmentQuestion({
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-3 sm:pt-4 px-3 sm:px-4 md:px-6">
         <div className="text-xs sm:text-sm text-muted-foreground">
-          1 = Rarely, 5 = Almost Always
+          1 = Rarely, 5 = Always
+        </div>
+        
+        {/* Navigation buttons */}
+        <div className="flex gap-2">
+
+          
+          {hasPreviousQuestion && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPreviousQuestion}
+              className="text-xs bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
+            >
+              Previous Question
+            </Button>
+          )}
+          
+          {hasNextQuestion && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNextQuestion}
+              className="text-xs bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
+              disabled={!currentResponse}
+            >
+              Next Question
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

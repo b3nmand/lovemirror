@@ -174,7 +174,7 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarPr
 
   const sidebarClasses = `
     ${isMobile 
-      ? 'fixed inset-y-0 left-0 z-40 w-full sm:w-80 transform transition-transform duration-300 ease-in-out'
+      ? 'fixed inset-y-0 left-0 z-40 w-full max-w-sm transform transition-transform duration-300 ease-in-out'
       : 'hidden lg:block fixed top-0 left-0 h-full w-64'}
     ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
     bg-white shadow-lg overflow-hidden
@@ -193,17 +193,20 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarPr
       {isMobile && <div className={overlayClasses} onClick={onClose} />}
       <Card className={sidebarClasses}>
         <ScrollArea className="h-full">
-          <div className="h-full p-3 sm:p-4 md:p-6">
+          <div className="h-full p-4 sm:p-5 md:p-6">
             <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent">
-                Love Mirror
-              </h2>
+              {/* Hide logo on small screens, show on larger screens */}
+              <img 
+                src="/homeimage.png" 
+                alt="LoveMirror Logo" 
+                className="hidden sm:block w-18 h-18 sm:w-24 sm:h-24 md:w-27 md:h-27 rounded-lg object-cover"
+              />
               {isMobile && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onClose}
-                  className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-md bg-transparent"
                   aria-label="Close menu"
                 >
                   <X className="h-6 w-6 text-gray-700" />
@@ -226,14 +229,14 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarPr
             </div>
             
             <nav>
-              <ul className="space-y-1">
+              <ul className="space-y-2">
                 <li>
                   <Button
-                    variant={isActive('/dashboard') ? "secondary" : "ghost"}
-                    className={`w-full justify-start rounded-lg transition-all text-xs sm:text-sm ${isActive('/dashboard') ? activeButtonClass : inactiveButtonClass}`}
+                    variant={isActive('/dashboard') ? "secondary" : "default"}
+                    className={`w-full justify-start rounded-lg transition-all text-sm sm:text-base py-3 sm:py-3 ${isActive('/dashboard') ? activeButtonClass : 'bg-transparent hover:bg-gray-50 text-gray-700'}`}
                     onClick={() => handleNavigation('/dashboard')}
                   >
-                    <BarChart3 className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 ${isActive('/dashboard') ? "text-pink-600" : ""}`} />
+                    <BarChart3 className={`w-5 h-5 sm:w-5 sm:h-5 mr-3 sm:mr-3 ${isActive('/dashboard') ? "text-pink-600" : ""}`} />
                     <span className="font-medium">Dashboard</span>
                   </Button>
                 </li>

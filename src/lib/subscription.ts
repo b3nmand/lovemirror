@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 export interface Subscription {
   id: string;
   user_id: string;
-  status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete';
+  status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete' | 'expired';
   plan: string;  // Legacy field
   plan_id: string;  // New field
   current_period_start: string;
@@ -16,13 +16,42 @@ export interface Subscription {
 }
 
 /**
+ * Check if a subscription is actually active and not expired
+ * @param subscription The subscription object to validate
+ * @returns Boolean indicating if the subscription is truly active
+ */
+function isSubscriptionActuallyActive(subscription: Subscription): boolean {
+  if (!subscription) return false;
+  
+  // Check if status is active
+  if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+    return false;
+  }
+  
+  // Check if current period has ended
+  const now = new Date();
+  const periodEnd = new Date(subscription.current_period_end);
+  
+  if (now > periodEnd) {
+    return false;
+  }
+  
+  // Check if subscription is set to cancel at period end
+  if (subscription.cancel_at_period_end && now >= periodEnd) {
+    return false;
+  }
+  
+  return true;
+}
+
+/**
  * Check if a user has an active subscription
  * @param userId The user ID to check
  * @returns Boolean indicating if the user has an active subscription
  */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
   try {
-    // Check for active subscription
+    // Check for active subscription with proper validation
     const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
       .select('*')
@@ -34,22 +63,54 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
       console.error('Error checking subscription:', subError);
       throw subError;
     }
-    if (subscription) return true;
-
-    // If no active subscription, check is_premium in profiles
+    
+    // Validate that the subscription is actually active (not expired)
+    if (subscription && isSubscriptionActuallyActive(subscription)) {
+      return true;
+    }
+    
+    // If subscription is expired, update its status
+    if (subscription && !isSubscriptionActuallyActive(subscription)) {
+      await updateExpiredSubscription(subscription.id);
+    }
+    
+    // Check is_premium in profiles as fallback (legacy support)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('is_premium')
       .eq('id', userId)
       .maybeSingle();
+      
     if (profileError) {
       console.error('Error checking is_premium:', profileError);
       throw profileError;
     }
+    
+    // Only return true if is_premium is explicitly true
     return !!profile?.is_premium;
   } catch (error) {
     console.error('Error in hasActiveSubscription:', error);
     return false;
+  }
+}
+
+/**
+ * Update expired subscription status
+ * @param subscriptionId The ID of the expired subscription
+ */
+async function updateExpiredSubscription(subscriptionId: string): Promise<void> {
+  try {
+    await supabase
+      .from('subscriptions')
+      .update({
+        status: 'expired',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', subscriptionId);
+      
+    console.log(`Updated subscription ${subscriptionId} to expired status`);
+  } catch (error) {
+    console.error('Error updating expired subscription:', error);
   }
 }
 
@@ -72,10 +133,52 @@ export async function getUserSubscription(userId: string): Promise<Subscription 
       throw error;
     }
     
-    return data;
+    // Validate that the subscription is actually active
+    if (data && isSubscriptionActuallyActive(data)) {
+      return data;
+    }
+    
+    // If subscription is expired, update it and return null
+    if (data && !isSubscriptionActuallyActive(data)) {
+      await updateExpiredSubscription(data.id);
+      return null;
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error in getUserSubscription:', error);
     return null;
+  }
+}
+
+/**
+ * Clean up expired subscriptions for all users
+ * This should be run periodically (e.g., daily cron job)
+ */
+export async function cleanupExpiredSubscriptions(): Promise<void> {
+  try {
+    const now = new Date().toISOString();
+    
+    // Find all expired subscriptions
+    const { data: expiredSubscriptions, error } = await supabase
+      .from('subscriptions')
+      .select('id, current_period_end')
+      .eq('status', 'active')
+      .lt('current_period_end', now);
+      
+    if (error) {
+      console.error('Error finding expired subscriptions:', error);
+      return;
+    }
+    
+    // Update expired subscriptions
+    for (const sub of expiredSubscriptions || []) {
+      await updateExpiredSubscription(sub.id);
+    }
+    
+    console.log(`Cleaned up ${expiredSubscriptions?.length || 0} expired subscriptions`);
+  } catch (error) {
+    console.error('Error in cleanupExpiredSubscriptions:', error);
   }
 }
 

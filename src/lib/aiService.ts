@@ -51,74 +51,43 @@ interface AIResponse {
 export async function getHybridAIResponse(payload: AIRequestPayload): Promise<AIResponse> {
   const { userInput, userContext, chatHistory } = payload;
   const config = getAIConfig();
-  const url = buildAPIUrl('/api/chat');
+  const url = buildAPIUrl(config.ENDPOINTS.CHAT);
 
   try {
-    // Format the request for the hybrid AI service
     const requestBody = {
       user_input: userInput,
       user_context: userContext,
       chat_history: chatHistory,
     };
 
-    if (config.ENABLE_LOGGING) {
-      console.log('[Hybrid AI] Sending request:', { url, requestBody });
-    }
-
-    // Make the API call to the hybrid AI service
     const response = await fetch(url, {
       method: 'POST',
-      headers: getDefaultHeaders(),
+      headers: {
+        ...getDefaultHeaders(),
+      },
       body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(config.TIMEOUT),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Hybrid AI] Error: Non-OK response`, { url, status: response.status, errorText });
-      throw new Error(`Hybrid AI service responded with status: ${response.status} - ${errorText}`);
+      throw new Error(`AI service error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    if (config.ENABLE_LOGGING) {
-      console.log('[Hybrid AI] Received response:', data);
-    }
-
-    return {
-      success: true,
-      response: data.response || 'No response received from AI service',
-    };
-
-  } catch (error) {
-    console.error('[Hybrid AI] Error:', { url, error });
-    
-    // Handle different types of errors
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        return {
-          success: false,
-          error: 'Request to hybrid AI service timed out. Please try again later.',
-        };
-      }
-      
-      if (error.message.includes('Failed to fetch')) {
-        return {
-          success: false,
-          error: `Unable to connect to hybrid AI service at ${url}. Please check your network connection or try again later.`,
-        };
-      }
-      
+    if (data.success) {
       return {
-        success: false,
-        error: `Hybrid AI service error: ${error.message}`,
+        success: true,
+        response: data.response,
+        responseType: data.response_type || 'ai_generated',
+        source: data.source || 'Azure AI Service',
       };
+    } else {
+      throw new Error(data.error || 'AI service returned an error');
     }
-    
-    return {
-      success: false,
-      error: 'An unexpected error occurred while communicating with the hybrid AI service.',
-    };
+  } catch (error) {
+    console.error('AI service error:', error);
+    throw new Error(`Failed to get AI response: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -306,18 +275,27 @@ export function generateFallbackResponse(userInput: string, context: any): strin
  */
 export async function testAIConnection(): Promise<boolean> {
   const config = getAIConfig();
+  // Test the AI service by calling the health endpoint
   const url = buildAPIUrl(config.ENDPOINTS.HEALTH);
   try {
     const response = await fetch(url, {
       method: 'GET',
+      headers: {
+        ...getDefaultHeaders(),
+      },
       signal: AbortSignal.timeout(5000),
     });
-    if (config.ENABLE_LOGGING) {
-      console.log('[AI Service] Health check response:', { url, status: response.status });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('AI service health check successful:', data);
+      return true;
+    } else {
+      console.error('AI service health check failed:', response.status, response.statusText);
+      return false;
     }
-    return response.ok;
   } catch (error) {
-    console.error('[AI Service] Health check failed:', { url, error });
+    console.error('AI service connection test failed:', error);
     return false;
   }
 }

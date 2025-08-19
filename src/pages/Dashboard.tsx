@@ -80,8 +80,8 @@ export default function Dashboard() {
   const assessmentType = profile ? getAssessmentType(profile) : null;
 
   return (
-    <div className="container mx-auto p-3 sm:p-4 md:p-6">
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8" style={{ 
+    <div className="w-full px-4 sm:px-6 md:px-8">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8" style={{ 
         background: 'linear-gradient(90deg, #ff0099, #9900ff)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent'
@@ -91,13 +91,13 @@ export default function Dashboard() {
 
       {/* Subscription Status Alert */}
       {!isSubscribed && (
-        <Alert className="mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
-          <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-pink-500" />
-          <AlertTitle className="text-sm sm:text-base text-pink-800">Unlock Premium Features</AlertTitle>
-          <AlertDescription className="text-xs sm:text-sm text-pink-700">
+        <Alert className="mb-6 sm:mb-8 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
+          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-pink-500" />
+          <AlertTitle className="text-base sm:text-lg text-pink-800">Unlock Premium Features</AlertTitle>
+          <AlertDescription className="text-sm sm:text-base text-pink-700">
             Subscribe to access detailed assessment results, partner compatibility, external feedback, and personalized improvement plans.
-            <div className="mt-2">
-              <Button 
+            <div className="mt-3">
+              <Button
                 onClick={() => navigate('/subscription')}
                 className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white [&_svg]:text-white text-xs sm:text-sm"
                 size="sm"
@@ -127,12 +127,24 @@ export default function Dashboard() {
             </p>
           </CardContent>
           <CardFooter className="bg-gray-50 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
-            <Button
-              onClick={() => navigate('/assessment')}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white [&_svg]:text-white text-xs sm:text-sm md:text-base"
-            >
-              {hasAssessment ? 'Retake Assessment' : 'Start Assessment'}
-            </Button>
+            <div className="w-full space-y-2">
+              <Button
+                onClick={() => navigate('/assessment')}
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white [&_svg]:text-white text-xs sm:text-sm md:text-base"
+              >
+                {hasAssessment ? 'Retake Assessment' : 'Start Assessment'}
+              </Button>
+              
+              {hasAssessment && isSubscribed && (
+                <Button
+                  onClick={() => navigate('/high-value-results')}
+                  variant="outline"
+                  className="w-full text-xs sm:text-sm md:text-base border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  View Latest Results
+                </Button>
+              )}
+            </div>
           </CardFooter>
         </Card>
 
@@ -260,7 +272,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 mt-6 sm:mt-8">
         <Card>
           <CardHeader className="p-3 sm:p-4 md:p-6">
             <CardTitle className="text-sm sm:text-base md:text-lg">Relationship Resources</CardTitle>

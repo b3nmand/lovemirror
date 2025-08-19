@@ -34,6 +34,38 @@ export default function HighValueResults() {
             setLoading(false);
             return;
           }
+          
+          // If no stored result, try to fetch the user's latest assessment
+          try {
+            const { data: assessments, error: assessmentError } = await supabase
+              .from('assessment_history')
+              .select('*')
+              .eq('user_id', user.id)
+              .eq('assessment_type', 'high-value-man')
+              .order('completed_at', { ascending: false })
+              .limit(1);
+            
+            if (!assessmentError && assessments && assessments.length > 0) {
+              const latestAssessment = assessments[0];
+              // Transform the data into AssessmentResult format
+              setResult({
+                categoryScores: latestAssessment.category_scores,
+                overallScore: latestAssessment.overall_score,
+                overallPercentage: latestAssessment.overall_percentage,
+                lowestCategories: latestAssessment.category_scores
+                  .sort((a: any, b: any) => a.percentage - b.percentage)
+                  .slice(0, 2),
+                assessmentType: latestAssessment.assessment_type,
+                badge: getBadgeForScore(latestAssessment.overall_percentage, latestAssessment.assessment_type)
+              });
+              setLoading(false);
+              return;
+            }
+          } catch (fetchError) {
+            console.log('Could not fetch latest assessment:', fetchError);
+          }
+          
+          // If no assessment found, redirect to assessment
           navigate('/assessment');
           return;
         }

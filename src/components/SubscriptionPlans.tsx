@@ -30,6 +30,11 @@ export function SubscriptionPlans({ user, plans, assessmentId, assessmentType }:
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleSubscribe = async (plan: Plan) => {
+    if (!assessmentId) {
+      toast.error('You must complete an assessment before subscribing to premium features');
+      return;
+    }
+
     setLoadingPlan(plan.id);
     try {
       await createCheckoutSession({
@@ -39,7 +44,7 @@ export function SubscriptionPlans({ user, plans, assessmentId, assessmentType }:
         assessmentId,
       });
     } catch (err) {
-      // Optionally show error toast
+      toast.error(err instanceof Error ? err.message : 'Failed to initiate subscription');
     } finally {
       setLoadingPlan(null);
     }

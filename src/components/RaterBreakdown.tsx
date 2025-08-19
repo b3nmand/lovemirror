@@ -110,10 +110,10 @@ export function RaterBreakdown({ assessments, onSelectAssessment }: RaterBreakdo
             </CardDescription>
           </div>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={toggleExpanded}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
           >
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>

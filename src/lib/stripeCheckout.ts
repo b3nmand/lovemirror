@@ -7,10 +7,15 @@ export async function createCheckoutSession({
   userId: string;
   priceId: string;
   planId: string;
-  assessmentId?: string;
+  assessmentId: string; // Now required, not optional
 }) {
   try {
-  const res = await fetch('https://fweatrkxjdlwyjrofsgv.supabase.co/functions/v1/create-checkout-session', {
+    // Validate assessment ID is provided
+    if (!assessmentId) {
+      throw new Error('Assessment must be completed before subscribing to premium features');
+    }
+
+    const res = await fetch('https://fweatrkxjdlwyjrofsgv.supabase.co/functions/v1/create-checkout-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

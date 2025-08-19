@@ -228,6 +228,20 @@ export default function ExternalResults() {
                   assessmentCount={delusionalScore.external_assessment_count}
                 />
                 
+                {/* Brief Score Explanation */}
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <h4 className="font-semibold text-blue-800 mb-2">Understanding Your Delusional Score</h4>
+                      <p className="text-sm text-blue-700">
+                        Your score represents the gap between how you see yourself and how others see you. 
+                        <strong> Lower percentages = Better self-awareness.</strong> 
+                        A score of 20% or below indicates excellent self-awareness, while scores above 60% suggest significant blind spots.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
                 <CategoryComparisonChart categories={delusionalScore.category_gaps} />
                 
                 <AIFeedbackSummary 
@@ -320,6 +334,21 @@ export default function ExternalResults() {
                       <p className="text-sm text-muted-foreground mt-2">
                         {getAssessmentTypeName(summary.assessment_type)}
                       </p>
+                      
+                      {/* Percentage Explanation */}
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl">
+                        <h4 className="font-semibold text-blue-800 mb-2">What Does This Percentage Mean?</h4>
+                        <div className="text-sm text-blue-700 space-y-2 text-left">
+                          <p><strong>0-20%:</strong> You have excellent self-awareness. Your self-perception closely matches how others see you.</p>
+                          <p><strong>21-40%:</strong> You have good self-awareness with minor blind spots. You generally understand how you come across to others.</p>
+                          <p><strong>41-60%:</strong> You have moderate self-awareness. There are some gaps between how you see yourself and how others perceive you.</p>
+                          <p><strong>61-80%:</strong> You have significant blind spots. Your self-perception differs considerably from others' views.</p>
+                          <p><strong>81-100%:</strong> You have major blind spots. There's a large gap between your self-perception and how others see you.</p>
+                        </div>
+                        <p className="text-xs text-blue-600 mt-3 italic">
+                          This score represents the difference between your self-assessment and external assessments. Lower percentages indicate better self-awareness.
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -430,10 +459,10 @@ export default function ExternalResults() {
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
                               onClick={() => handleSelectAssessment(assessment)}
-                              className="hover:bg-gray-100"
+                              className="hover:bg-gray-100 bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
                             >
                               View Details
                               <ChevronRight className="ml-2 h-4 w-4" />

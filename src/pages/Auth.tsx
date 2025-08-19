@@ -208,10 +208,10 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
-      <Card className="max-w-md w-full">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold" style={{ 
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+      <Card className="w-full max-w-sm sm:max-w-md">
+        <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8">
+          <CardTitle className="text-2xl sm:text-3xl font-bold" style={{ 
             background: 'linear-gradient(90deg, #ff0099, #9900ff)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
@@ -225,7 +225,7 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 pb-6 sm:pb-8">
           {isRecovery ? (
             <form
               onSubmit={async (e) => {
@@ -291,7 +291,7 @@ export default function Auth() {
             )}
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 sm:space-y-6">
                 <FormField
                   control={form.control}
                   name="email"
@@ -370,8 +370,8 @@ export default function Auth() {
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
-                    className="w-full"
+                    variant="outline"
+                    className="w-full bg-transparent hover:bg-gray-50 text-gray-700 border-gray-200"
                     onClick={() => {
                       setShowReset(false);
                       setResetStatus('idle');
